@@ -118,14 +118,30 @@ Settlement happens BEFORE the tool runs; a failed settlement never releases
 the result. This mapping is our own design (no MCP payment standard exists);
 documented in README for interop.
 
-## 8c. Settlement path not yet exercised on-chain
+## 8c. Settlement — RESOLVED end-to-end on Coston2 (2026-07-17)
 
-Everything up to settlement is live-verified (402 requirements, EIP-712
-verification, on-chain nonce check). The final `transferWithAuthorization`
-broadcast needs a funded operator key + a payer holding the token — run
-`scripts/x402-demo-client.ts` on Coston2 before the hackathon demo. The
-in-process settled-nonce cache does not survive restarts; the durable replay
-barrier is the on-chain EIP-3009 nonce, which is consumed at settlement.
+Full x402 flow executed live via `scripts/x402-demo-client.ts`: 402
+requirements → off-chain EIP-3009 signature → verify → settlement tx
+`0x19eb12939c66f495ce4e5c60f6a00a8e3418a0d049e38dc796a54c94906fa7dd`
+(Coston2) → paid result released with the receipt attached. Balances
+confirmed on-chain (payee +0.001 mUSDT0).
+
+Two findings from the live run:
+- The **faucet USDT0** (`0xC1A5B41512496B80903D1f32d6dEa3a73212E71F`,
+  "USDT0 test") has **no EIP-3009**, so it cannot pay x402. The demo instead
+  deployed the official flare-hardhat-starter `MockUSDT0` (public mint,
+  canonical (v,r,s) EIP-3009) to Coston2 at
+  `0x3c71Fb2b7da7CE85dd1aF0A54174668e41BcD176` — set as `X402_TOKEN_ADDRESS`
+  for demos. The compiled source is vendored in `contracts/MockUSDT0.sol`.
+- The in-process settled-nonce cache does not survive restarts; the durable
+  replay barrier is the on-chain EIP-3009 nonce, consumed at settlement.
+
+## 8d. npm identity
+
+The user's npm account is `dziuba0x` (no `dziubatechnology` org), and the
+unscoped name `flare-mcp` is taken by an unrelated ticketing product (since
+2026-04). Published as **`@dziuba0x/flare-mcp`**; the spec's
+`@dziubatechnology/flare-mcp` never existed on the registry (§1).
 
 ## 9. EVMTransaction source chains
 

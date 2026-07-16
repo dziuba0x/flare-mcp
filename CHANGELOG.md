@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased (0.3.0) — x402 payment layer
+## 0.3.0 — 2026-07-17 — x402 payment layer
 
 - **x402 payments over MCP** (`src/x402/`): paid tools reply with payment
   requirements; the client signs an EIP-3009 `TransferWithAuthorization`

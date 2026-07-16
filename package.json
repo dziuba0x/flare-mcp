@@ -1,7 +1,7 @@
 {
-  "name": "@dziubatechnology/flare-mcp",
-  "version": "0.2.0",
-  "description": "MCP server for Flare Network — query blockchain data via natural language",
+  "name": "@dziuba0x/flare-mcp",
+  "version": "0.3.0",
+  "description": "MCP server for Flare Network — FTSO prices, FAssets state, FDC attestations with local proof verification, and x402 micropayments settled on Flare",
   "type": "module",
   "bin": {
     "flare-mcp": "dist/index.js"
@@ -36,12 +36,17 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@openzeppelin/contracts": "^5.6.1",
     "@types/node": "^25.9.1",
+    "solc": "^0.8.28",
     "tsx": "^4.22.3",
     "typescript": "^6.0.3",
     "vitest": "^3.2.7"
   },
   "engines": {
     "node": ">=18"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

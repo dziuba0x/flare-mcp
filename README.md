@@ -42,7 +42,7 @@ Edit `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) o
   "mcpServers": {
     "flare-mcp": {
       "command": "npx",
-      "args": ["-y", "flare-mcp"],
+      "args": ["-y", "@dziuba0x/flare-mcp"],
       "env": {
         "FLARE_RPC": "https://flare-api.flare.network/ext/C/rpc",
         "FLARE_RPC_TESTNET": "https://coston2-api.flare.network/ext/C/rpc"
@@ -65,7 +65,7 @@ Edit `~/.cursor/mcp.json` (global) or `.cursor/mcp.json` (per-project) and add:
   "mcpServers": {
     "flare-mcp": {
       "command": "npx",
-      "args": ["-y", "flare-mcp"]
+      "args": ["-y", "@dziuba0x/flare-mcp"]
     }
   }
 }
@@ -77,7 +77,7 @@ The same block works in any MCP client that supports stdio servers (VS Code, Win
 
 ## Tools Reference
 
-Every tool validates its input with [zod](https://zod.dev) and returns a clear error message (rather than crashing) when an RPC call or data source is unavailable. All tools are **free** in v2.0 (an optional x402 paid tier is planned for premium computed tools — see the roadmap).
+Every tool validates its input with [zod](https://zod.dev) and returns a clear error message (rather than crashing) when an RPC call or data source is unavailable. Thirteen tools are **free**; the two premium computed tools settle via [x402 micropayments on Flare](#x402-payments-premium-tools) when the operator enables it (and are free otherwise).
 
 | Tool | Networks | Tier | Description |
 | --- | --- | --- | --- |
