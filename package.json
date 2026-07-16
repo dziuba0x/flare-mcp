@@ -1,0 +1,47 @@
+{
+  "name": "@dziubatechnology/flare-mcp",
+  "version": "0.2.0",
+  "description": "MCP server for Flare Network — query blockchain data via natural language",
+  "type": "module",
+  "bin": {
+    "flare-mcp": "dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc && node -e \"require('fs').chmodSync('dist/index.js', 0o755)\"",
+    "start": "node dist/index.js",
+    "dev": "tsx src/index.ts",
+    "inspect": "npx @modelcontextprotocol/inspector node dist/index.js",
+    "prepare": "npm run build",
+    "test": "vitest run"
+  },
+  "keywords": [
+    "blockchain",
+    "fassets",
+    "fdc",
+    "flare",
+    "ftso",
+    "mcp",
+    "songbird",
+    "x402"
+  ],
+  "author": "Alan Dziuba <alan.dziuba@op.pl>",
+  "license": "MIT",
+  "dependencies": {
+    "@flarenetwork/flare-periphery-contract-artifacts": "^0.1.52",
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "viem": "^2.51.3",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@types/node": "^25.9.1",
+    "tsx": "^4.22.3",
+    "typescript": "^6.0.3",
+    "vitest": "^3.2.7"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

@@ -1,0 +1,206 @@
+{
+  "recordedAt": "2026-07-15",
+  "source": "FlareContractRegistry.getAllContracts on Songbird",
+  "contracts": [
+    {
+      "name": "FtsoRegistry",
+      "address": "0xEf4c203470553C654B3870f37ce4DE1fA862Dee0"
+    },
+    {
+      "name": "StateConnector",
+      "address": "0x0c13aDA1C7143Cf0a0795FFaB93eEBb6FAD6e4e3"
+    },
+    {
+      "name": "FlareDaemon",
+      "address": "0x1000000000000000000000000000000000000002"
+    },
+    {
+      "name": "PriceSubmitter",
+      "address": "0x155513345E3fe9A0aa8B0BeF156b1576C39f0f3C"
+    },
+    {
+      "name": "InflationAllocation",
+      "address": "0x11e8d7dcb7e7b62E6984E7fF29C736A8fA857c11"
+    },
+    {
+      "name": "Inflation",
+      "address": "0x7174961ffCe87744d2f1a25B6d75Cf780Ec6Fd65"
+    },
+    {
+      "name": "Supply",
+      "address": "0x9dCf773832BD2994B2367801BFbd3969630b1781"
+    },
+    {
+      "name": "FtsoRewardManager",
+      "address": "0x1643299dBBb36E3E1AC26a7FeBC3F97382bDCfa5"
+    },
+    {
+      "name": "CleanupBlockNumberManager",
+      "address": "0x207425DA5ddb52C2fAd5333dCF4f2d95b0489a79"
+    },
+    {
+      "name": "VoterWhitelister",
+      "address": "0xEfF0A449290763a95ee33a6A108F5B0b1Ea06bE9"
+    },
+    {
+      "name": "WNat",
+      "address": "0x02f0826ef6aD107Cfc861152B32B52fD11BaB9ED"
+    },
+    {
+      "name": "GovernanceVotePower",
+      "address": "0xC5F28A768eE12f46d82C7C5b3D94C97Da498157C"
+    },
+    {
+      "name": "GovernanceSettings",
+      "address": "0x183fAfF6997C98A812A3B98748Fc80241D08f312"
+    },
+    {
+      "name": "AddressUpdater",
+      "address": "0x884E1818eA005171CDe0dB5b83E9734454e0Ed6D"
+    },
+    {
+      "name": "FtsoManager",
+      "address": "0xf4c4B9334F794076A7E7F5Da50da3990Ac8236c9"
+    },
+    {
+      "name": "PollingFoundation",
+      "address": "0x79Df47237292Dbd1477502CFF3F61cD535B0FAce"
+    },
+    {
+      "name": "FlareContractRegistry",
+      "address": "0xaD67FE66660Fb8dFE9d6b1b4240d8650e30F6019"
+    },
+    {
+      "name": "PollingFtso",
+      "address": "0x6A4707d6ac8a029705f17B1653AFC3c2D9933E1e"
+    },
+    {
+      "name": "ClaimSetupManager",
+      "address": "0xDD138B38d87b0F95F6c3e13e78FFDF2588F1732d"
+    },
+    {
+      "name": "FlareAssetRegistry",
+      "address": "0x9A7b31D3eDC688bec67cD6647e2679Efc9195E97"
+    },
+    {
+      "name": "Submission",
+      "address": "0x2cA6571Daa15ce734Bbd0Bf27D5C9D16787fc33f"
+    },
+    {
+      "name": "EntityManager",
+      "address": "0x46C417D0760198E94fee455CE0e223262a3D0049"
+    },
+    {
+      "name": "VoterRegistry",
+      "address": "0x31B9EC65C731c7D973a33Ef3FC83B653f540dC8D"
+    },
+    {
+      "name": "FlareSystemsCalculator",
+      "address": "0x126FAeEc75601dA3354c0b5Cc0b60C85fCbC3A5e"
+    },
+    {
+      "name": "FlareSystemsManager",
+      "address": "0x421c69E22f48e14Fc2d2Ee3812c59bfb81c38516"
+    },
+    {
+      "name": "RewardManager",
+      "address": "0xE26AD68b17224951b5740F33926Cc438764eB9a7"
+    },
+    {
+      "name": "Relay",
+      "address": "0xCB86E8Be709001e01897Bf59847406853da8f14b"
+    },
+    {
+      "name": "WNatDelegationFee",
+      "address": "0x3499a6D765640F8D35538cF0a292BcA38504353C"
+    },
+    {
+      "name": "FtsoInflationConfigurations",
+      "address": "0xedCC74C6Dac98abB2F658D8cF6112D6B53B0E78D"
+    },
+    {
+      "name": "FtsoRewardOffersManager",
+      "address": "0x5aB9cB258a342001C4663D9526A1c54cCcF8C545"
+    },
+    {
+      "name": "FtsoFeedDecimals",
+      "address": "0x9391f16c2034CCe3cC139e9eE30E080EF524D4a9"
+    },
+    {
+      "name": "FtsoFeedPublisher",
+      "address": "0xD29D1AE96c5D505Bcf886d38C9DC0358b326E458"
+    },
+    {
+      "name": "FtsoFeedIdConverter",
+      "address": "0x9c20c3F1fC39F14ad0D09DE91B74a16c12a36C61"
+    },
+    {
+      "name": "FastUpdateIncentiveManager",
+      "address": "0x596C70Ad6fFFdb9b6158F1Dfd0bc32cc72B82006"
+    },
+    {
+      "name": "FastUpdater",
+      "address": "0x7D9F73FD9bC4607daCB618FF895585f98BFDD06B"
+    },
+    {
+      "name": "FastUpdatesConfiguration",
+      "address": "0x8D48a67e11CdB821C38c85FB92bcB3A1865aCEdF"
+    },
+    {
+      "name": "FtsoV2",
+      "address": "0x510600336247303f9dAA337eC7E82D1F11462Ec8"
+    },
+    {
+      "name": "ProtocolsV2",
+      "address": "0x421c69E22f48e14Fc2d2Ee3812c59bfb81c38516"
+    },
+    {
+      "name": "RandomNumberV2",
+      "address": "0xCB86E8Be709001e01897Bf59847406853da8f14b"
+    },
+    {
+      "name": "RewardsV2",
+      "address": "0xE26AD68b17224951b5740F33926Cc438764eB9a7"
+    },
+    {
+      "name": "FdcHub",
+      "address": "0xCfD4669a505A70c2cE85db8A1c1d14BcDE5a1a06"
+    },
+    {
+      "name": "FdcInflationConfigurations",
+      "address": "0x2766f9927748Ef59aeC95B4777CcF29a77d35191"
+    },
+    {
+      "name": "FdcRequestFeeConfigurations",
+      "address": "0x8998a3b85350aA4CA5f55cD80ab1f7C9C0ddf02C"
+    },
+    {
+      "name": "FdcVerification",
+      "address": "0x3f4dd62410D4F876232Ed17C115437144995557f"
+    },
+    {
+      "name": "AssetManagerController",
+      "address": "0x04025BBf6Be30d6cB6ad412c2958c712c6B2BCbA"
+    },
+    {
+      "name": "FtsoV2PriceStore",
+      "address": "0x9D99A8BadD16A22fB3E9C6e17DF90b3b72838B2d"
+    },
+    {
+      "name": "VoterPreRegistry",
+      "address": "0x9Ba9A142FD5B2953667B03dB40D1d77c83F225a2"
+    },
+    {
+      "name": "PollingManagementGroup",
+      "address": "0x46F86fB6C7044f395d47dBaC0c201d1aD0bAa882"
+    },
+    {
+      "name": "AssetManagerFXRP",
+      "address": "0x299d678f67e7ADD4efdf295Ebe0E92FCb4f75C4c"
+    },
+    {
+      "name": "FeeCalculator",
+      "address": "0x850580df526112CCe4B7FC135919BaE3a923b845"
+    }
+  ]
+}

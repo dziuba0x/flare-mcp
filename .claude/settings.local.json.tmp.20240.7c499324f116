@@ -1,0 +1,39 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls -la /home/dziuba/flare-mcp2/ && ls /home/dziuba/ | head -30)",
+      "Bash(npm view *)",
+      "Bash(curl -sL --max-time 30 https://dev.flare.network/llms.txt -o /tmp/claude-1000/-home-dziuba-flare-mcp2/e0d86689-1c31-4d17-8d0d-216fb56413e7/scratchpad/llms.txt)",
+      "Bash(python3 -c ' *)",
+      "Bash(head -c 400 /home/dziuba/flare-mcp/node_modules/@flarenetwork/flare-periphery-contract-artifacts/flare/artifacts/contracts/IPayment.sol/IPayment.json)",
+      "Bash(echo)",
+      "Bash(echo \"=== IFdcVerification:\")",
+      "Bash(npm install *)",
+      "Bash(node probe-registry.mjs)",
+      "Bash(node -e ' *)",
+      "Bash(curl -sL --max-time 30 https://dev.flare.network/fdc/getting-started.md -o /tmp/claude-1000/-home-dziuba-flare-mcp2/e0d86689-1c31-4d17-8d0d-216fb56413e7/scratchpad/docs/fdc_getting-started.md)",
+      "Bash(grep -o 'https://fdc-verifiers[^\"'\\\\'' \\)`]*' /tmp/claude-1000/-home-dziuba-flare-mcp2/e0d86689-1c31-4d17-8d0d-216fb56413e7/scratchpad/docs/fdc_getting-started.md)",
+      "Bash(sed -i '19s/z.enum\\(\\\\[\"mainnet\", \"coston2\"\\\\]\\)/z.enum\\([\"mainnet\", \"coston2\", \"songbird\", \"coston\"]\\)/' src/tools/wallet.ts)",
+      "Bash(sed -i '42s/z.enum\\(\\\\[\"mainnet\", \"coston2\"\\\\]\\)/z.enum\\([\"mainnet\", \"coston2\", \"songbird\", \"coston\"]\\)/' src/tools/ftso.ts)",
+      "Bash(sed -i '91s/z.enum\\(\\\\[\"mainnet\", \"coston2\"\\\\]\\)/z.enum\\([\"mainnet\", \"coston2\", \"songbird\", \"coston\"]\\)/' src/tools/ftso.ts)",
+      "Bash(sed -i '38s/z.enum\\(\\\\[\"mainnet\", \"coston2\"\\\\]\\)/z.enum\\([\"mainnet\", \"coston2\", \"songbird\", \"coston\"]\\)/' src/tools/fdc.ts)",
+      "Bash(curl -sL --max-time 20 \"https://ctn2-data-availability.flare.network/api-doc?format=openapi\" -H \"x-api-key: 00000000-0000-0000-0000-000000000000\" -o /tmp/claude-1000/-home-dziuba-flare-mcp2/e0d86689-1c31-4d17-8d0d-216fb56413e7/scratchpad/da-openapi.json)",
+      "Bash(curl -sL --max-time 20 https://ctn2-data-availability.flare.network/_api_schema -H 'x-api-key: 00000000-0000-0000-0000-000000000000' -o /tmp/claude-1000/-home-dziuba-flare-mcp2/e0d86689-1c31-4d17-8d0d-216fb56413e7/scratchpad/da-openapi.yaml)",
+      "Bash(python3 -)",
+      "Bash(curl -s --max-time 15 \"https://ctn2-data-availability.flare.network/api/v0/fsp/latest-voting-round\" -H \"x-api-key: 00000000-0000-0000-0000-000000000000\")",
+      "Bash(curl -s --max-time 15 \"https://ctn2-data-availability.flare.network/api/v1/fdc?voting_round_id=1397600\" -H \"x-api-key: 00000000-0000-0000-0000-000000000000\")",
+      "Bash(python3 -m json.tool)",
+      "Bash(curl -s --max-time 15 \"https://ctn2-data-availability.flare.network/api/v1/fdc?voting_round_id=1397600\" -H \"x-api-key: 00000000-0000-0000-0000-000000000000\" -o test/fixtures/coston2-round-1397600.json)",
+      "Bash(python3 -c \"import json; d=json.load\\(open\\('test/fixtures/coston2-round-1397600.json'\\)\\); print\\(len\\(d\\), 'attestations:', [a['response']['attestationType'][:20] for a in d]\\)\")",
+      "Bash(npx tsx *)",
+      "Bash(npx tsc *)",
+      "Bash(npm test *)",
+      "Bash(npm run *)",
+      "Bash(timeout 10 node dist/index.js)",
+      "Bash(python3 -c \"import json,sys; d=json.loads\\(sys.stdin.readline\\(\\)\\); print\\('tools:', [t['name'] for t in d['result']['tools']]\\)\")",
+      "Bash(timeout 3 node dist/index.js)",
+      "Bash(git add *)",
+      "Bash(git -c 'user.name=Alan Dziuba' -c user.email=alan.dziuba@op.pl commit -q -m 'flare-mcp v2 \\(0.2.0\\): FDC attestations, FAssets state, Songbird, FCC watcher *)"
+    ]
+  }
+}
