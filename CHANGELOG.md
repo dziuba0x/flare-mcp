@@ -1,5 +1,26 @@
 # Changelog
 
+## Unreleased (0.3.0) — x402 payment layer
+
+- **x402 payments over MCP** (`src/x402/`): paid tools reply with payment
+  requirements; the client signs an EIP-3009 `TransferWithAuthorization`
+  off-chain and retries with `x402_payment` (base64 JSON); the built-in
+  facilitator verifies the EIP-712 signature locally, checks the nonce
+  on-chain, settles `transferWithAuthorization` on Flare and attaches the
+  settlement tx hash to the result. The facilitator never holds funds.
+  Disabled by default (`X402_ENABLED=true` to enable; mainnet additionally
+  behind `X402_ALLOW_MAINNET=true`). Prices per tool via env.
+- **`fassets_liquidation_scanner`** (premium): joins FAssets agent state with
+  live FTSOv2 prices — per agent: CR headroom against the collateral-type
+  minimums, the underlying price at which liquidation starts, and the % move
+  away from it.
+- **`fdc_bulk_proof_bundle`** (premium): batch retrieval of up to 20 FDC
+  proofs, each Merkle-verified locally against the on-chain Relay root.
+- Demo agent: `scripts/x402-demo-client.ts` (MCP stdio client that pays and
+  retries autonomously).
+- Payment tokens verified on-chain: mainnet USD₮0 has EIP-3009 (docs +
+  functional probe); Coston2 default is a verified EIP-3009 test USDT0.
+
 ## 0.2.0 — 2026-07-15
 
 flare-mcp v2: FDC attestation workflows, deep FAssets state, Songbird/Coston

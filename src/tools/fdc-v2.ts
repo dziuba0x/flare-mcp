@@ -159,6 +159,91 @@ export const fdcGetAttestationProofInput = {
   network: z.enum(["mainnet", "coston2", "songbird", "coston"]),
 };
 
+export interface VerifiedProof {
+  verified: true;
+  verification: string;
+  network: NetworkType;
+  voting_round_id: number;
+  attestation_type: string;
+  merkle_root: Hex;
+  response: Awaited<ReturnType<typeof fetchProofFromDaLayer>>["response"];
+  merkle_proof: Hex[];
+  relay_address: `0x${string}`;
+}
+
+/**
+ * Core of fdc_get_attestation_proof, reused by fdc_bulk_proof_bundle:
+ * fetch a proof from the DA layer and verify it locally against the Relay
+ * root read on-chain. Throws with a precise reason on any failure.
+ */
+export async function retrieveAndVerifyProof(
+  voting_round_id: number,
+  abi_encoded_request: string,
+  network: NetworkType,
+): Promise<VerifiedProof> {
+  const client = getClient(network);
+  const relayAddress = getAddress(await getContractAddress("Relay", network));
+  const relayAbi = getInterfaceAbi("IRelay", network);
+
+  const onChainRoot = (await client.readContract({
+    address: relayAddress,
+    abi: relayAbi,
+    functionName: "merkleRoots",
+    args: [BigInt(FDC_PROTOCOL_ID), BigInt(voting_round_id)],
+  })) as Hex;
+  if (onChainRoot.toLowerCase() === ZERO_BYTES32) {
+    throw new Error(
+      `Voting round ${voting_round_id} has no FDC Merkle root on the ${network} Relay yet. The round may not be finalized — try again in ~90s.`,
+    );
+  }
+
+  const daProof = await fetchProofFromDaLayer(
+    voting_round_id,
+    abi_encoded_request as Hex,
+    network,
+  );
+
+  // Decode the attestation type from the response to pick the right struct.
+  const typeHex = daProof.response.attestationType;
+  const typeName = Buffer.from(typeHex.slice(2), "hex")
+    .toString("utf8")
+    .replace(/\0+$/, "");
+  if (!(ATTESTATION_TYPES as readonly string[]).includes(typeName)) {
+    throw new Error(
+      `DA layer returned attestation type "${typeName}", which this tool cannot verify locally (supported: ${ATTESTATION_TYPES.join(", ")}).`,
+    );
+  }
+
+  // Local verification: leaf = keccak256(abi.encode(response)), folded
+  // through the sorted-pair Merkle proof, must equal the Relay root.
+  // This removes trust in the DA layer response.
+  const responseAbi = responseAbiParameter(
+    typeName as AttestationType,
+    network,
+  );
+  const leaf = computeResponseLeaf(responseAbi, daProof.response);
+  const computedRoot = foldMerkleProof(leaf, daProof.proof);
+
+  if (computedRoot.toLowerCase() !== onChainRoot.toLowerCase()) {
+    throw new Error(
+      `Merkle verification FAILED for round ${voting_round_id} on ${network}: computed root ${computedRoot} does not match on-chain root ${onChainRoot}. Do not trust this DA response (${daLayerBase(network)}).`,
+    );
+  }
+
+  return {
+    verified: true,
+    verification:
+      "Local: keccak256(abi.encode(response)) folded through merkle_proof equals the Relay merkleRoots(200, round) read on-chain.",
+    network,
+    voting_round_id,
+    attestation_type: typeName,
+    merkle_root: onChainRoot,
+    response: daProof.response,
+    merkle_proof: daProof.proof,
+    relay_address: relayAddress,
+  };
+}
+
 export async function fdcGetAttestationProof(args: {
   voting_round_id: number;
   abi_encoded_request: string;
@@ -166,68 +251,9 @@ export async function fdcGetAttestationProof(args: {
 }) {
   const { voting_round_id, abi_encoded_request, network } = args;
   try {
-    const client = getClient(network);
-    const relayAddress = getAddress(await getContractAddress("Relay", network));
-    const relayAbi = getInterfaceAbi("IRelay", network);
-
-    const onChainRoot = (await client.readContract({
-      address: relayAddress,
-      abi: relayAbi,
-      functionName: "merkleRoots",
-      args: [BigInt(FDC_PROTOCOL_ID), BigInt(voting_round_id)],
-    })) as Hex;
-    if (onChainRoot.toLowerCase() === ZERO_BYTES32) {
-      return toolError(
-        `Voting round ${voting_round_id} has no FDC Merkle root on the ${network} Relay yet. The round may not be finalized — try again in ~90s.`,
-      );
-    }
-
-    const daProof = await fetchProofFromDaLayer(
-      voting_round_id,
-      abi_encoded_request as Hex,
-      network,
+    return toolResult(
+      await retrieveAndVerifyProof(voting_round_id, abi_encoded_request, network),
     );
-
-    // Decode the attestation type from the response to pick the right struct.
-    const typeHex = daProof.response.attestationType;
-    const typeName = Buffer.from(typeHex.slice(2), "hex")
-      .toString("utf8")
-      .replace(/\0+$/, "");
-    if (!(ATTESTATION_TYPES as readonly string[]).includes(typeName)) {
-      return toolError(
-        `DA layer returned attestation type "${typeName}", which this tool cannot verify locally (supported: ${ATTESTATION_TYPES.join(", ")}).`,
-      );
-    }
-
-    // Local verification: leaf = keccak256(abi.encode(response)), folded
-    // through the sorted-pair Merkle proof, must equal the Relay root.
-    // This removes trust in the DA layer response.
-    const responseAbi = responseAbiParameter(
-      typeName as AttestationType,
-      network,
-    );
-    const leaf = computeResponseLeaf(responseAbi, daProof.response);
-    const computedRoot = foldMerkleProof(leaf, daProof.proof);
-    const verified = computedRoot.toLowerCase() === onChainRoot.toLowerCase();
-
-    if (!verified) {
-      return toolError(
-        `Merkle verification FAILED for round ${voting_round_id} on ${network}: computed root ${computedRoot} does not match on-chain root ${onChainRoot}. Do not trust this DA response (${daLayerBase(network)}).`,
-      );
-    }
-
-    return toolResult({
-      verified: true,
-      verification:
-        "Local: keccak256(abi.encode(response)) folded through merkle_proof equals the Relay merkleRoots(200, round) read on-chain.",
-      network,
-      voting_round_id,
-      attestation_type: typeName,
-      merkle_root: onChainRoot,
-      response: daProof.response,
-      merkle_proof: daProof.proof,
-      relay_address: relayAddress,
-    });
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     return toolError(

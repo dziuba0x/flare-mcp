@@ -50,7 +50,7 @@ function toolResult(data: unknown) {
   };
 }
 
-async function resolveAssetManager(
+export async function resolveAssetManager(
   asset: string,
   network: NetworkType,
 ): Promise<Address | null> {
@@ -67,12 +67,13 @@ async function resolveAssetManager(
   return null;
 }
 
-interface AgentInfoStruct {
+export interface AgentInfoStruct {
   status: number;
   ownerManagementAddress: Address;
   collateralPool: Address;
   underlyingAddressString: string;
   publiclyAvailable: boolean;
+  vaultCollateralToken: Address;
   feeBIPS: bigint;
   mintingVaultCollateralRatioBIPS: bigint;
   mintingPoolCollateralRatioBIPS: bigint;

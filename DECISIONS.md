@@ -88,7 +88,46 @@ Verify end-to-end with a funded Coston2 account before the npm publish.
 Local Merkle verification *was* validated end-to-end against real finalized
 attestations (round 1397600 on Coston2, Payment + AddressValidity).
 
-## 8. EVMTransaction source chains
+## 8a. Phase 2 payment-token gate — RESOLVED (option (a), 2026-07-16)
+
+On-chain probes (see also §4):
+
+- **Mainnet USD₮0** `0xe7cd86e13AC4309349F30B3435a9d337750fC82D` (proxy,
+  2227-byte stub): `authorizationState` and `DOMAIN_SEPARATOR` respond →
+  EIP-3009 live. Docs confirm the **packed-signature variant**
+  `transferWithAuthorization(...,bytes signature)`; the facilitator tries the
+  canonical (v,r,s) form first and falls back to the bytes form.
+- **Coston2** `0xce13911D4896200b543a61E4ae8E829E661Dd8EB` ("USDT0", 6 dec):
+  bytecode contains BOTH transferWithAuthorization selectors,
+  receiveWithAuthorization and EIP-2612 permit. `mint` is restricted
+  (owner-only), so demo payers need tokens from the faucet/DEX or a
+  self-deployed MockUSDT0 (override via `X402_TOKEN_ADDRESS`). This token is
+  a community/mock deployment — NOT claimed official. The Coston2 faucet
+  labels a token "USDT0" but its address could not be extracted from the
+  faucet app; verify which token the faucet dispenses before the demo.
+- The spec's fallback (c) (FLR + FDC Payment attestation) is **not needed**
+  but remains attractive as a second, fully-native scheme later.
+
+## 8b. x402-for-MCP mapping (stdio has no HTTP status/headers)
+
+x402 is HTTP-native. Over stdio, this server maps: HTTP 402 body → tool
+result `{ x402_payment_required, accepts: [...] }`; `X-Payment` header →
+optional tool argument `x402_payment` (same base64-JSON encoding);
+`X-Payment-Response` → `x402_payment_receipt` attached to the tool result.
+Settlement happens BEFORE the tool runs; a failed settlement never releases
+the result. This mapping is our own design (no MCP payment standard exists);
+documented in README for interop.
+
+## 8c. Settlement path not yet exercised on-chain
+
+Everything up to settlement is live-verified (402 requirements, EIP-712
+verification, on-chain nonce check). The final `transferWithAuthorization`
+broadcast needs a funded operator key + a payer holding the token — run
+`scripts/x402-demo-client.ts` on Coston2 before the hackathon demo. The
+in-process settled-nonce cache does not survive restarts; the durable replay
+barrier is the on-chain EIP-3009 nonce, which is consumed at settlement.
+
+## 9. EVMTransaction source chains
 
 Verifier docs list Ethereum, Flare and Songbird as EVMTransaction sources
 (`eth`, `flr`, `sgb` path segments; `testETH` etc. on testnet). Only the

@@ -94,6 +94,10 @@ Every tool validates its input with [zod](https://zod.dev) and returns a clear e
 | `fassets_agent_status` | mainnet, coston2, songbird | Free | Per-agent collateral ratios, minting capacity, liquidation status (riskiest first) |
 | `fassets_system_state` | mainnet, coston2, songbird | Free | Total minted, lot size, minting cap/pause, aggregate collateral, redemption queue |
 | `songbird_fcc_registry` | songbird (default), all | Free | Scan the live contract registry for FCC (PMW/TEE) deployments |
+| `fassets_liquidation_scanner` | mainnet, coston2, songbird | **Premium (x402)** § | FAssets agents × live FTSO prices: per-agent liquidation price and distance to it |
+| `fdc_bulk_proof_bundle` | mainnet, coston2, songbird, coston | **Premium (x402)** § | Batch retrieval + local verification of up to 20 FDC proofs |
+
+> § Premium tools run **free** unless the server operator sets `X402_ENABLED=true` — see [x402 payments](#x402-payments-premium-tools).
 
 > † Requires an external data source configured via an environment variable (see below); on-chain aggregation of providers/history is impractical for a read-only stdio server.
 > ‡ Best-effort: the MasterAccountController ABI is not yet published in the periphery artifacts, so this returns a `has_account: false` notice when it cannot resolve.
@@ -112,6 +116,35 @@ Every tool validates its input with [zod](https://zod.dev) and returns a clear e
 ```
 
 Without `FLARE_PRIVATE_KEY`, step 1 returns `mode: "prepared_only"` with the encoded request, fee and FdcHub address so you can submit it with your own signer. The key, when provided, is only ever used to sign locally.
+
+### x402 payments (premium tools)
+
+flare-mcp implements the [x402 payment protocol](https://www.x402.org/) adapted to MCP over stdio — the first MCP server whose paid tools settle **on the chain they serve**. HTTP's 402 status and `X-Payment` header map to tool results and a tool argument:
+
+```text
+1. call a paid tool                → result: { x402_payment_required: true,
+                                               accepts: [requirements] }
+2. sign an EIP-3009 TransferWithAuthorization off-chain (gasless for payer)
+3. retry the SAME call with        → x402_payment: base64(JSON payload)
+4. server verifies the EIP-712 signature locally, checks the nonce on-chain,
+   settles transferWithAuthorization on Flare, runs the tool
+   → result includes { x402_payment_receipt: { tx_hash, ... } }
+```
+
+The built-in facilitator **never holds funds**: `transferWithAuthorization` moves tokens directly payer → payee; the operator key only pays gas to broadcast the client-signed authorization. Replay is blocked twice: EIP-3009 nonces are consumed on-chain, and settled nonces are additionally cached in-process.
+
+Server-side setup (operator):
+
+```bash
+X402_ENABLED=true
+X402_NETWORK=coston2            # mainnet additionally needs X402_ALLOW_MAINNET=true
+X402_PAY_TO=0xYourPayeeAddress
+FLARE_PRIVATE_KEY=0x...          # operator gas key for settlements
+# optional: X402_TOKEN_ADDRESS, X402_PRICE_DEFAULT=0.001,
+#           X402_PRICE_FASSETS_LIQUIDATION_SCANNER=0.005 (whole-token units)
+```
+
+Payment tokens (EIP-3009, verified on-chain 2026-07): Coston2 defaults to `0xce13911D4896200b543a61E4ae8E829E661Dd8EB` (test USDT0); mainnet defaults to the official [USD₮0](https://docs.usdt0.to/technical-documentation/developer#flare) `0xe7cd86e13AC4309349F30B3435a9d337750fC82D`. Try the full agent flow with `npx tsx scripts/x402-demo-client.ts`.
 
 ---
 
@@ -140,6 +173,11 @@ All are optional; the server runs against the public RPCs and Flare-hosted FDC s
 | `FDC_VERIFIER_API_KEY` | `fdc_request_attestation` | Verifier API key; defaults to the public key `00000000-0000-0000-0000-000000000000`. |
 | `FLARE_DA_API_KEY` | `fdc_get_attestation_proof` | DA-layer API key; defaults to the public key. |
 | `FLARE_DA_URL` | `fdc_get_attestation_proof` | Override the DA-layer base URL (e.g. a self-hosted instance). |
+| `X402_ENABLED` | premium tools | `true` turns on the x402 paywall for premium tools (default: off — premium tools are free). |
+| `X402_NETWORK` | x402 | Settlement network (default `coston2`; `mainnet` also needs `X402_ALLOW_MAINNET=true`). |
+| `X402_PAY_TO` | x402 | Payee address receiving payments (required when enabled). |
+| `X402_TOKEN_ADDRESS` | x402 | EIP-3009 payment token override (defaults: Coston2 test USDT0, mainnet USD₮0). |
+| `X402_PRICE_DEFAULT` / `X402_PRICE_<TOOL>` | x402 | Prices in whole-token units (default `0.001`). |
 | `FLARE_PROVIDERS_API` | `get_ftso_providers` | An indexer endpoint returning a JSON array of providers (or `{ "providers": [...] }`). |
 | `FLARE_DA_LAYER_API` | `get_ftso_history` | Base URL of a Flare Data Availability Layer / indexer for historical feed results. |
 | `FLARE_METRICS_API` | `get_fassets_status` | Optional fallback metrics API, used only if the on-chain read fails. |

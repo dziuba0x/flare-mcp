@@ -43,6 +43,12 @@ import {
   songbirdFccRegistry,
   songbirdFccRegistryInput,
 } from "./tools/fcc.js";
+import {
+  fassetsLiquidationScanner,
+  fassetsLiquidationScannerInput,
+  fdcBulkProofBundle,
+  fdcBulkProofBundleInput,
+} from "./tools/premium.js";
 import { registerNetworkResources } from "./resources/network.js";
 
 const server = new McpServer({
@@ -132,6 +138,20 @@ server.tool(
   "Global FAssets system state for an asset: total minted, agent count, lot size, minting cap/pause, aggregated vault+pool collateral, and the redemption queue (tickets, value, lots).",
   fassetsSystemStateInput,
   fassetsSystemState,
+);
+
+server.tool(
+  "fassets_liquidation_scanner",
+  "PREMIUM (x402): FAssets agents ranked by liquidation risk, joined with live FTSOv2 prices — per agent: CR headroom, the underlying price at which liquidation starts, and the % price move away from it. Free when the operator has not enabled x402.",
+  fassetsLiquidationScannerInput,
+  fassetsLiquidationScanner,
+);
+
+server.tool(
+  "fdc_bulk_proof_bundle",
+  "PREMIUM (x402): batch retrieval of up to 20 FDC attestation proofs with local Merkle verification of each against the on-chain Relay root. Free when the operator has not enabled x402.",
+  fdcBulkProofBundleInput,
+  fdcBulkProofBundle,
 );
 
 server.tool(
