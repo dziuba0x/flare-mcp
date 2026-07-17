@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.4.0 — 2026-07-17 — hub mode (hosted HTTP + spec-style x402)
+
+- **`--http [port]` / `FLARE_MCP_HTTP_PORT`**: run flare-mcp as a hostable
+  service — MCP over Streamable HTTP at `POST /mcp` (stateless, all 15
+  tools) plus REST premium endpoints paid via **standard HTTP x402**
+  (`402` + `accepts[]` → `X-Payment` header → result +
+  `X-Payment-Response` with the settlement tx). Wire-compatible with the
+  existing x402 client ecosystem; no new runtime dependencies (plain
+  `node:http`).
+- `GET /` discovery document (endpoints, x402 config), `GET /healthz`.
+- `Dockerfile` + `.dockerignore` for one-command deployment; binds
+  `127.0.0.1` by default, `FLARE_MCP_HTTP_HOST=0.0.0.0` to expose.
+- stdio mode unchanged and still the default.
+
 ## 0.3.0 — 2026-07-17 — x402 payment layer
 
 - **x402 payments over MCP** (`src/x402/`): paid tools reply with payment

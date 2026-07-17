@@ -40,7 +40,7 @@ function textResult(data: unknown, isError = false): ToolResult {
   };
 }
 
-function decodePayload(b64: string): PaymentPayload {
+export function decodePayload(b64: string): PaymentPayload {
   const json = Buffer.from(b64, "base64").toString("utf8");
   const raw = JSON.parse(json) as Record<string, unknown>;
   const required = ["from", "to", "value", "validAfter", "validBefore", "nonce", "v", "r", "s"];

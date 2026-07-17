@@ -146,6 +146,31 @@ FLARE_PRIVATE_KEY=0x...          # operator gas key for settlements
 
 Payment tokens (EIP-3009, verified on-chain 2026-07): Coston2 defaults to `0xce13911D4896200b543a61E4ae8E829E661Dd8EB` (test USDT0); mainnet defaults to the official [USD₮0](https://docs.usdt0.to/technical-documentation/developer#flare) `0xe7cd86e13AC4309349F30B3435a9d337750fC82D`. Try the full agent flow with `npx tsx scripts/x402-demo-client.ts`.
 
+### Hub mode (hosted HTTP service)
+
+Run flare-mcp as a network service instead of a local stdio process:
+
+```bash
+npx @dziuba0x/flare-mcp --http 8402         # or FLARE_MCP_HTTP_PORT=8402
+# expose beyond localhost:
+FLARE_MCP_HTTP_HOST=0.0.0.0 npx @dziuba0x/flare-mcp --http 8402
+```
+
+| Endpoint | What it serves |
+| --- | --- |
+| `POST /mcp` | Full MCP server over Streamable HTTP (stateless) — all 15 tools, x402 in-band |
+| `GET /api/premium/liquidation-scanner?asset=FXRP&network=mainnet` | Spec-style **HTTP x402**: `402` + `accepts[]` → retry with `X-Payment` header → result + `X-Payment-Response` (settlement tx) |
+| `POST /api/premium/proof-bundle` | Same x402 flow; body `{"requests":[{"voting_round_id":N,"abi_encoded_request":"0x…"}],"network":"…"}` |
+| `GET /` | Discovery: endpoints, x402 config, pricing |
+| `GET /healthz` | Liveness |
+
+The REST endpoints use the standard x402 wire format (base64 JSON payload in `X-Payment`), so non-MCP agents and existing x402 clients can pay too. A `Dockerfile` ships in the repo:
+
+```bash
+docker build -t flare-mcp-hub . && docker run -p 8402:8402 \
+  -e X402_ENABLED=true -e X402_PAY_TO=0xYou -e FLARE_PRIVATE_KEY=0x... flare-mcp-hub
+```
+
 ---
 
 ## Network Support

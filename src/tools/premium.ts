@@ -146,7 +146,7 @@ export const fassetsLiquidationScannerInput = {
   ...x402PaymentInput,
 };
 
-async function liquidationScannerCore(args: {
+export async function liquidationScannerCore(args: {
   asset: "FXRP" | "FBTC" | "FDOGE";
   network: NetworkType;
   max_agents?: number;
@@ -276,7 +276,7 @@ export const fdcBulkProofBundleInput = {
   ...x402PaymentInput,
 };
 
-async function bulkProofBundleCore(args: {
+export async function bulkProofBundleCore(args: {
   requests: Array<{ voting_round_id: number; abi_encoded_request: string }>;
   network: NetworkType;
 }) {

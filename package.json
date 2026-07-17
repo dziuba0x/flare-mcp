@@ -1,6 +1,6 @@
 {
   "name": "@dziuba0x/flare-mcp",
-  "version": "0.3.2",
+  "version": "0.4.0",
   "description": "MCP server for Flare Network — FTSO prices, FAssets state, FDC attestations with local proof verification, and x402 micropayments settled on Flare",
   "type": "module",
   "bin": {
