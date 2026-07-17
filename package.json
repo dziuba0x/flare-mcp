@@ -1,6 +1,6 @@
 {
   "name": "@dziuba0x/flare-mcp",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "MCP server for Flare Network — FTSO prices, FAssets state, FDC attestations with local proof verification, and x402 micropayments settled on Flare",
   "type": "module",
   "bin": {
@@ -48,5 +48,13 @@
   },
   "publishConfig": {
     "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dziuba0x/flare-mcp.git"
+  },
+  "homepage": "https://github.com/dziuba0x/flare-mcp#readme",
+  "bugs": {
+    "url": "https://github.com/dziuba0x/flare-mcp/issues"
   }
 }

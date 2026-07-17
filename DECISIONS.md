@@ -136,12 +136,22 @@ Two findings from the live run:
 - The in-process settled-nonce cache does not survive restarts; the durable
   replay barrier is the on-chain EIP-3009 nonce, consumed at settlement.
 
-## 8d. npm identity
+## 8d. npm identity + a publishing false alarm
 
 The user's npm account is `dziuba0x` (no `dziubatechnology` org), and the
 unscoped name `flare-mcp` is taken by an unrelated ticketing product (since
 2026-04). Published as **`@dziuba0x/flare-mcp`**; the spec's
 `@dziubatechnology/flare-mcp` never existed on the registry (§1).
+
+Correction for the record: the commit message of the 0.3.1 bump claims 0.3.0
+was "burned by npm spam-block" — that diagnosis was **wrong**. The registry
+was simply replicating slowly (several minutes of 404s after a successful
+publish), and www.npmjs.com returns HTTP 403 to curl for *every* page (bot
+protection), which mimicked a quarantine. Both 0.3.0 (published by the user)
+and 0.3.1 are live. Lesson: always run a control probe (a known-good package)
+before concluding anything from registry/site responses.
+
+Source repository: https://github.com/dziuba0x/flare-mcp (pushed 2026-07-17).
 
 ## 9. EVMTransaction source chains
 
