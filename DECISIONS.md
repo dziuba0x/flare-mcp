@@ -77,16 +77,16 @@ redemption queue is paginated up to 10 × `maxRedeemedTickets` tickets. If
 agent counts grow past these caps the numbers become partial; the response
 reports `agents_sampled` so consumers can tell.
 
-## 7. Live-network testing of transaction submission
+## 7. Live-network testing of transaction submission — RESOLVED (2026-07-17)
 
-`fdc_request_attestation` was live-tested in `prepared_only` mode (verifier +
-fee quote + registry resolution) on Coston2. The actual `FdcHub` submission
-path could not be exercised without a funded key; it follows the exact
-documented call (`requestAttestation(bytes)` with `value = getRequestFee`)
-and is simulated via `eth_call` (viem `simulateContract`) before sending.
-Verify end-to-end with a funded Coston2 account before the npm publish.
-Local Merkle verification *was* validated end-to-end against real finalized
-attestations (round 1397600 on Coston2, Payment + AddressValidity).
+The full FDC cycle was executed live on Coston2 with our own attestation:
+`fdc_request_attestation` submitted a Payment request to FdcHub (tx
+`0xb9c504fe613f49a7dfe16456727e053fca77708c68524b872618d350c91328fe`, fee
+1000 wei, voting round 1397964); after finalization (~3 min),
+`fdc_get_attestation_proof` retrieved the proof from the DA layer and
+verified it locally against the Relay root
+(`0x5fbdc8463844afea63…`, proof depth 2). Earlier, local Merkle verification
+was also validated against third-party attestations (round 1397600).
 
 ## 8a. Phase 2 payment-token gate — RESOLVED (option (a), 2026-07-16)
 
