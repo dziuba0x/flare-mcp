@@ -48,10 +48,14 @@ import {
   fdcBulkProofBundle,
   fdcBulkProofBundleInput,
 } from "./tools/premium.js";
+import {
+  fdcVerifySettlement,
+  fdcVerifySettlementInput,
+} from "./tools/fdc-settlement.js";
 import { registerNetworkResources } from "./resources/network.js";
 
 
-export const SERVER_INFO = { name: "flare-mcp", version: "0.4.0" } as const;
+export const SERVER_INFO = { name: "flare-mcp", version: "0.5.0" } as const;
 
 export function buildServer(): McpServer {
   const server = new McpServer({ ...SERVER_INFO });
@@ -159,6 +163,13 @@ server.tool(
   "Scan the live FlareContractRegistry (Songbird by default) for Flare Confidential Compute contracts (PMW, TEE, compute extensions). Reports FCC deployment status post-STP.13 and lists FDC/Relay contracts plus the full registry.",
   songbirdFccRegistryInput,
   songbirdFccRegistry,
+);
+
+server.tool(
+  "fdc_verify_settlement",
+  "Prove an x402 settlement via Flare's enshrined FDC (trust-minimized, not the facilitator's word). Given a settlement tx hash it prepares an EVMTransaction attestation request (phase 1, free, no chain write); given a finalized voting_round_id + abi_encoded_request it locally Merkle-verifies the attestation AND binds it to the payment — confirming the attested tx contains an ERC-20 Transfer of >= amount of asset to payee. Never submits on-chain itself.",
+  fdcVerifySettlementInput,
+  fdcVerifySettlement,
 );
 
 registerNetworkResources(server);

@@ -32,6 +32,7 @@ New in **v2**:
 - **`fassets_agent_status`** — Every FAssets agent with collateral ratios, minting capacity, minted/reserved amounts and liquidation status, sorted riskiest-first.
 - **`fassets_system_state`** — Global FAssets stats: total minted, lot size, minting cap/pause, aggregated vault+pool collateral, redemption queue.
 - **`songbird_fcc_registry`** — Live FlareContractRegistry scan for Flare Confidential Compute (PMW/TEE) deployments post-STP.13.
+- **`fdc_verify_settlement`** — Prove an x402 settlement via Flare's **enshrined FDC**, not the facilitator's word: an EVMTransaction attestation over the settlement tx, locally Merkle-verified and *bound* to the payment (the attested tx must contain the ERC-20 Transfer of the asset to the payee for ≥ the amount).
 
 It also exposes two MCP **resources**: `flare://network/feeds` (the bundled FTSO feed list) and `flare://network/contracts` (the ContractRegistry address and runtime-resolution guide).
 
@@ -81,7 +82,7 @@ The same block works in any MCP client that supports stdio servers (VS Code, Win
 
 ## Tools Reference
 
-Every tool validates its input with [zod](https://zod.dev) and returns a clear error message (rather than crashing) when an RPC call or data source is unavailable. Thirteen tools are **free**; the two premium computed tools settle via [x402 micropayments on Flare](#x402-payments-premium-tools) when the operator enables it (and are free otherwise).
+Every tool validates its input with [zod](https://zod.dev) and returns a clear error message (rather than crashing) when an RPC call or data source is unavailable. Fourteen tools are **free**; the two premium computed tools settle via [x402 micropayments on Flare](#x402-payments-premium-tools) when the operator enables it (and are free otherwise).
 
 | Tool | Networks | Tier | Description |
 | --- | --- | --- | --- |
@@ -98,6 +99,7 @@ Every tool validates its input with [zod](https://zod.dev) and returns a clear e
 | `fassets_agent_status` | mainnet, coston2, songbird | Free | Per-agent collateral ratios, minting capacity, liquidation status (riskiest first) |
 | `fassets_system_state` | mainnet, coston2, songbird | Free | Total minted, lot size, minting cap/pause, aggregate collateral, redemption queue |
 | `songbird_fcc_registry` | songbird (default), all | Free | Scan the live contract registry for FCC (PMW/TEE) deployments |
+| `fdc_verify_settlement` | mainnet, coston2, songbird, coston | Free | Prove an x402 settlement via enshrined FDC (EVMTransaction attestation) and bind it to the payment claim |
 | `fassets_liquidation_scanner` | mainnet, coston2, songbird | **Premium (x402)** § | FAssets agents × live FTSO prices: per-agent liquidation price and distance to it |
 | `fdc_bulk_proof_bundle` | mainnet, coston2, songbird, coston | **Premium (x402)** § | Batch retrieval + local verification of up to 20 FDC proofs |
 
@@ -140,6 +142,10 @@ The built-in facilitator **never holds funds**: `transferWithAuthorization` move
 
 Every paid call returns a portable `x402_receipt`: a fixed-schema, self-describing record where the payer appears only as a Poseidon commitment (never in plaintext), with a keccak256 `receipt_hash` any holder can recompute for tamper-evidence. Payers can blind their commitment with an optional `commitment_salt` in the payment payload. Full contract: [`RECEIPT_SPEC.md`](RECEIPT_SPEC.md).
 
+### FDC-verified settlement — the differentiator
+
+A receipt says a payment settled; **Flare can prove it with the chain's own enshrined data connector**. `fdc_verify_settlement` takes a settlement tx and obtains an FDC **EVMTransaction** attestation over it, verifies the Merkle proof locally against the on-chain Relay root, and then *binds* the attestation to the payment — confirming the attested transaction actually contains an ERC-20 `Transfer` of the asset to the payee for at least the amount. The result is a receipt whose `fdc_attestation_ref` makes the settlement provable **without trusting the facilitator**. No other chain in the x402 ecosystem can produce a protocol-level receipt like this. The tool never submits on-chain itself (the attestation request is permissionless — the holder submits it), so a hosted hub cannot be griefed into spending gas.
+
 Server-side setup (operator):
 
 ```bash
@@ -165,7 +171,7 @@ FLARE_MCP_HTTP_HOST=0.0.0.0 npx @dziuba0x/flare-mcp --http 8402
 
 | Endpoint | What it serves |
 | --- | --- |
-| `POST /mcp` | Full MCP server over Streamable HTTP (stateless) — all 15 tools, x402 in-band |
+| `POST /mcp` | Full MCP server over Streamable HTTP (stateless) — all 16 tools, x402 in-band |
 | `GET /api/premium/liquidation-scanner?asset=FXRP&network=mainnet` | Spec-style **HTTP x402**: `402` + `accepts[]` → retry with `X-Payment` header → result + `X-Payment-Response` (settlement tx) |
 | `POST /api/premium/proof-bundle` | Same x402 flow; body `{"requests":[{"voting_round_id":N,"abi_encoded_request":"0x…"}],"network":"…"}` |
 | `GET /` | Discovery: endpoints, x402 config, pricing |

@@ -171,3 +171,15 @@ export function verifyReceiptHash(receipt: Receipt): boolean {
   const { receipt_hash, ...rest } = receipt;
   return keccak256(toBytes(canonicalize(rest))) === receipt_hash;
 }
+
+/**
+ * Upgrade a receipt to its FDC-verified form: attach the enshrined-FDC
+ * attestation reference and recompute receipt_hash. The result is a distinct,
+ * trust-minimized receipt (different hash) — the settlement is now provable
+ * without trusting the facilitator. Every other field is preserved.
+ */
+export function attachFdcRef(receipt: Receipt, ref: FdcAttestationRef): Receipt {
+  const { receipt_hash: _old, ...rest } = receipt;
+  const base: Omit<Receipt, "receipt_hash"> = { ...rest, fdc_attestation_ref: ref };
+  return { ...base, receipt_hash: keccak256(toBytes(canonicalize(base))) };
+}

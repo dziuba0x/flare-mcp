@@ -62,14 +62,16 @@ end-to-end on Coston2 (settlement tx 0xb380…9184). Honest privacy caveat
 documented (EIP-3009 exposes payer on-chain; commitment is forward-looking).
 Not yet published to npm (pending operator: publish now vs batch with G2).
 
-### G2 — FDC-verified settlement path NOT built (Principle 4). **The headline differentiator.**
-x402 settlement never touches FDC (`grep fdc src/x402/` → none). The flagship
-feature — receipts provable by Flare's *enshrined* FDC Payment attestation, not by
-trusting our facilitator — does not exist yet. Good news: the building blocks
-(`fdc_request_attestation`, `fdc_get_attestation_proof`, local Merkle verify) are
-built and live-verified, so this is a **composition** of existing code:
-native transfer → FDC Payment attestation on that tx → `fdc_attestation_ref` in the
-receipt → local verify. Larger and security-critical; do after the receipt schema.
+### G2 — FDC-verified settlement (Principle 4). **DONE (2026-07-21), the differentiator.**
+New tool `fdc_verify_settlement` (`src/tools/fdc-settlement.ts`): FDC
+**EVMTransaction** attestation over the settlement tx (corrected from the
+handoff's "Payment" — that's BTC/DOGE/XRP only; DECISIONS §10), locally
+Merkle-verified, then **bound** to the payment (attested tx must contain an
+ERC-20 `Transfer` of the asset → payee for ≥ amount). `attachFdcRef` upgrades a
+receipt to its FDC-verified form. Tool never submits on-chain (anti-gas-grief).
+10 unit tests (binding security core + attachFdcRef). Live end-to-end on
+Coston2: pending final confirmation of the running background test (submit →
+finalize → verify+bind, incl. rejection of wrong amount/payee/asset).
 
 ### G3 — README lacks explicit complementary positioning (Phase 1 criterion).
 No mention of the official docs-MCP (dev.flare.network/mcp) or the framing

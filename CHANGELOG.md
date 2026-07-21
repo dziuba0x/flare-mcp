@@ -1,19 +1,30 @@
 # Changelog
 
-## Unreleased — ZK-ready settlement receipts (organ 3)
+## 0.5.0 — 2026-07-21 — ZK-ready receipts + FDC-verified settlement
+
+The settlement layer's organ 3: receipts, and the enshrined-FDC proof that
+makes them trust-minimized.
 
 - **`x402_receipt`**: every settled payment now emits a fixed-schema,
   self-describing, portable receipt (`src/x402/receipt.ts`,
   [`RECEIPT_SPEC.md`](RECEIPT_SPEC.md)). The payer appears only as a
   **Poseidon (BN254) commitment**, never in plaintext; a keccak256
-  `receipt_hash` gives any holder tamper-evidence; `fdc_attestation_ref` is
-  reserved for the FDC-verified path (null for now). Payers may blind the
+  `receipt_hash` gives any holder tamper-evidence. Payers may blind the
   commitment with an optional `commitment_salt` in the payment payload (not
   part of the EIP-712 authorization — it cannot affect fund movement).
-- Additive and backward-compatible: `x402_payment_receipt` (settlement
-  summary) is unchanged; `x402_receipt` is emitted alongside it on both the
-  MCP and HTTP transports. Live-verified end-to-end on Coston2.
+  Additive: `x402_payment_receipt` (settlement summary) is unchanged;
+  `x402_receipt` is emitted alongside it on both transports.
+- **`fdc_verify_settlement`** (new tool): proves an x402 settlement via
+  Flare's **enshrined FDC** — an EVMTransaction attestation over the
+  settlement tx, locally Merkle-verified against the on-chain Relay root, then
+  *bound* to the payment (the attested tx must contain an ERC-20 Transfer of
+  the asset to the payee for ≥ the amount). Populates the receipt's
+  `fdc_attestation_ref`, making the settlement provable without trusting the
+  facilitator. Never submits on-chain itself (no gas-griefing surface).
+  Live-verified end-to-end on Coston2, including rejection of mismatched
+  amount/payee.
 - New dependency: `poseidon-lite` (small, dependency-free Poseidon).
+- 16 tools total; 65 tests.
 
 ## 0.4.0 — 2026-07-17 — hub mode (hosted HTTP + spec-style x402)
 

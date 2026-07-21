@@ -110,10 +110,18 @@ behind a config flag if the economics justify it.
   emits the receipt. A holder trusts that the settlement tx exists (verifiable:
   the tx hash is on-chain) but takes the receipt's *binding to a specific tool
   call* on the facilitator's word.
-- **v-next (planned, Principle 4): FDC-verified.** `fdc_attestation_ref` is
-  populated by Flare's enshrined FDC Payment attestation over the settlement
-  transaction, so the receipt is provable without trusting the facilitator. This
-  is the project's headline differentiator and the reason it is built on Flare.
+- **v-next (implemented): FDC-verified.** `fdc_attestation_ref` is populated by
+  Flare's enshrined FDC **EVMTransaction** attestation over the settlement
+  transaction (not Payment — that is for native BTC/DOGE/XRP; see DECISIONS §10),
+  so the receipt is provable without trusting the facilitator. This is the
+  project's headline differentiator and the reason it is built on Flare.
+
+  Obtain it with the `fdc_verify_settlement` tool: it verifies the attestation's
+  Merkle proof locally against the on-chain Relay root **and binds it** — the
+  attested tx must contain an ERC-20 `Transfer` of the asset to the payee for
+  ≥ the amount. `attachFdcRef(receipt, ref)` upgrades a receipt to its
+  FDC-verified form (populates `fdc_attestation_ref`, recomputes `receipt_hash`;
+  every other field, including `payer_commitment`, is preserved).
 
 ## Compatibility
 

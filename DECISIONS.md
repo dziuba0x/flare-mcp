@@ -172,6 +172,36 @@ On-chain receipt-hash anchoring was **deferred** (would add one tx per call,
 doubling gas on sub-cent pricing); the anchor today is the settlement tx hash,
 and the FDC attestation becomes the enshrined anchor once that path lands.
 
+## 10. FDC-verified settlement — EVMTransaction, not Payment (operator-confirmed, 2026-07-21)
+
+The handoff (Principle 4) describes the differentiator as an "FDC **Payment**
+attestation." Correction, flagged and confirmed with the operator: FDC Payment
+attests native-currency payments on **BTC/DOGE/XRP** only (per `IPayment`
+`@custom:supported BTC, DOGE, XRP`). An x402 settlement on Flare is an **ERC-20
+transfer on an EVM chain**, so the correct enshrined primitive is the FDC
+**EVMTransaction** attestation over the settlement tx (source = the Flare network
+itself; Flare/Songbird are documented EVMTransaction sources). Verified live: the
+testnet verifier accepts `EVMTransaction/flr` for a Coston2 tx → `VALID`.
+Operator confirmed this direction ("kierunek fenomenalny i unikatowy").
+
+**Binding is the security core.** Proving "tx X is confirmed" is insufficient; the
+attestation is bound to the payment by scanning the attested tx's events for an
+ERC-20 `Transfer(asset → payee, value ≥ amount)`. A VALID Merkle proof whose tx
+does not contain the claimed transfer is rejected. Live-verified on Coston2,
+including rejection of overclaimed amount, wrong payee, and wrong asset.
+
+**No on-chain submission from the tool (anti-griefing).** `fdc_verify_settlement`
+never submits an FdcHub transaction. Submitting an attestation request costs a
+fee + gas; if a hosted hub auto-submitted on every call it could be griefed into
+draining the operator's gas. The request is permissionless — the holder submits
+it themselves (via `fdc_request_attestation`, which they run with their own key).
+Phase 1 of the tool only *prepares* (verifier API, no chain write); phase 2
+verifies + binds. This keeps the verification tool free and abuse-resistant.
+
+**Anchoring (D2) resolved as planned:** the FDC EVMTransaction attestation is
+itself the enshrined, chain-verifiable anchor for the settlement; no separate
+receipt-hash anchor contract is added (would double gas on sub-cent pricing).
+
 ## 9. EVMTransaction source chains
 
 Verifier docs list Ethereum, Flare and Songbird as EVMTransaction sources
