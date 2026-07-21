@@ -1,17 +1,22 @@
-# STATE.md — flare-mcp / Agent Settlement Layer on Flare
+# STATE.md — Flario / Agent Settlement Layer on Flare
 
 Running project state, updated per session so any future session/model resumes
 with zero context loss. Handoff brief: `~/Downloads/claude-code-handoff-prompt.md`.
 
-Last updated: 2026-07-21 (session: audit on model handoff Fable 5 → Opus 4.8).
+Last updated: 2026-07-21 (session: audit + receipts + FDC-settlement + rebrand to
+Flario, model handoff Fable 5 → Opus 4.8).
+
+**NAME:** project rebranded `@dziuba0x/flare-mcp` → **Flario** (npm `flario`, repo
+github.com/dziuba0x/flario, command `npx flario`). Same code, own brand. See
+DECISIONS §11. "Flare"/"MCP" kept in tagline+keywords for discovery.
 
 ## Snapshot
 
-- Package: `@dziuba0x/flare-mcp` — **v0.4.0 published** to npm; repo public at
-  github.com/dziuba0x/flare-mcp; git tree clean.
-- Tests: 43 passing (vitest, recorded fixtures + hub integration). `npm test` green.
-- Tools: 15 (8 v1 + 5 Phase-1 v2 + 2 premium). Transports: stdio (default) and
-  hub mode (`--http`, MCP Streamable HTTP + spec-style x402 REST).
+- Package: **`flario` — v1.0.0** on npm (bare name); repo public at
+  github.com/dziuba0x/flario; git tree clean.
+- Tests: 65 passing (vitest, recorded fixtures + hub integration). `npm test` green.
+- Tools: 16 (8 v1 + 5 Phase-1 v2 + 2 premium + fdc_verify_settlement). Transports:
+  stdio (default) and hub mode (`--http`, MCP Streamable HTTP + spec-style x402 REST).
 - Live-verified on-chain (Coston2): FDC full cycle (own attestation, round
   1397964), x402 settlement over MCP (tx 0x19eb…a7dd) and over HTTP
   (tx 0xf230…cab2, replay rejected).

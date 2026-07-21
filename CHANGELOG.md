@@ -1,5 +1,20 @@
 # Changelog
 
+## 1.0.0 — 2026-07-21 — Flario
+
+Project renamed from `@dziuba0x/flare-mcp` to **Flario** (npm: `flario`; command:
+`npx flario`; repo: github.com/dziuba0x/flario). Same tool, own brand — an
+agent-native MCP server for Flare with x402 payments and chain-verified receipts.
+
+- **No functional changes.** All 16 tools, both transports (stdio + HTTP hub),
+  the x402 layer, receipts and FDC-verified settlement are unchanged. Only names
+  moved: package `flario`, bin `flario`, MCP server name `flario`, receipt schema
+  `flario-receipt/1`, hub env vars `FLARIO_HTTP_HOST`/`FLARIO_HTTP_PORT` (the
+  Flare-network vars `FLARE_RPC*`, `FLARE_PRIVATE_KEY` keep the `FLARE_` prefix).
+- Migration from `@dziuba0x/flare-mcp`: change the package to `flario` and the
+  command to `npx flario`; update the mcpServers key if you used `flare-mcp`.
+  The old package is deprecated with a pointer to `flario`.
+
 ## 0.5.0 — 2026-07-21 — ZK-ready receipts + FDC-verified settlement
 
 The settlement layer's organ 3: receipts, and the enshrined-FDC proof that

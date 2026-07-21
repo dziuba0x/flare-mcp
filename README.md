@@ -1,16 +1,17 @@
-# flare-mcp — Model Context Protocol Server for Flare Network
+# Flario — the agent MCP server for Flare Network (FTSO · FDC · FAssets · x402)
 
+[![npm version](https://img.shields.io/npm/v/flario.svg)](https://www.npmjs.com/package/flario)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](#license)
 [![Node](https://img.shields.io/badge/node-%3E%3D18-339933.svg)](https://nodejs.org)
-[![Transport](https://img.shields.io/badge/transport-stdio-informational.svg)](#)
+[![Model Context Protocol](https://img.shields.io/badge/Model_Context_Protocol-server-6E56CF.svg)](https://modelcontextprotocol.io)
 
-The first [Model Context Protocol](https://modelcontextprotocol.io) server for [Flare Network](https://flare.network) — query FTSO price feeds, FAssets, FDC attestations and proofs, balances and Smart Accounts in natural language from Claude Desktop, Cursor, VS Code or any MCP-compatible client. Runs locally over stdio as an `npx` package: no server to host, no cost.
+**Flario** is the agent-native [Model Context Protocol (MCP)](https://modelcontextprotocol.io) server for [Flare Network](https://flare.network). It gives AI agents — in Claude, Cursor, VS Code or any MCP client — direct, natural-language access to Flare's enshrined protocols (**FTSO** price feeds, **FDC** cross-chain attestations, **FAssets**) **and an agent wallet**: pay-per-call tools via **[x402](https://www.x402.org/)** settled on Flare, with chain-verified receipts. Install with `npx flario`, or run it as a hosted HTTP hub.
 
-**v2** adds FDC attestation workflows (request + locally-verified proofs), deep FAssets state (per-agent collateral and liquidation status, system totals, redemption queue), Songbird/Coston support, and an FCC (Flare Confidential Compute) registry watcher. All reads are trustless where possible: FDC proofs are Merkle-verified locally against the on-chain Relay root, never trusted from an API. The only optional write is `fdc_request_attestation`, which submits an attestation request *if* you configure `FLARE_PRIVATE_KEY` — without it the tool returns a prepared request for your own signer, and the server never holds or forwards funds.
+Flario covers the full enshrined stack — FTSO price feeds, FDC attestation workflows (request + **locally-verified** Merkle proofs), deep FAssets state (per-agent collateral, liquidation risk, system totals, redemption queue), Songbird/Coston support, and an FCC (Flare Confidential Compute) registry watcher. Reads are trust-minimized: FDC proofs are verified locally against the on-chain Relay root, never trusted from an API. The one optional write, `fdc_request_attestation`, submits only if you set `FLARE_PRIVATE_KEY`; otherwise it returns a prepared request for your own signer. **Flario never holds or forwards funds.**
 
-Beyond reads, flare-mcp gives agents a **wallet**: premium tools are payable per call via [x402](https://www.x402.org/) settled on Flare, and every paid call returns a portable, chain-anchored **receipt** (see [`RECEIPT_SPEC.md`](RECEIPT_SPEC.md)). The facilitator never holds funds.
+Beyond reads, Flario gives agents a **wallet**: premium tools are payable per call via [x402](https://www.x402.org/) settled on Flare, and every paid call returns a portable, chain-verified **receipt** (see [`RECEIPT_SPEC.md`](RECEIPT_SPEC.md)) — provable via Flare's enshrined FDC, not the facilitator's word.
 
-> **Complementary to the official Flare MCP server.** Flare's own MCP server (`dev.flare.network/mcp`) is documentation search/fetch — it gives agents *knowledge*. flare-mcp gives agents *hands and a wallet*: it calls the enshrined protocols (FTSO/FDC/FAssets/FCC) and lets agents pay for computed results. Use both.
+> **Complementary to the official Flare MCP server.** Flare's own MCP server (`dev.flare.network/mcp`) is documentation search/fetch — it gives agents *knowledge*. Flario gives agents *hands and a wallet*: it calls the enshrined protocols (FTSO/FDC/FAssets/FCC) and lets agents **pay** for computed results, with **chain-verified receipts**. Use both.
 
 ---
 
@@ -25,7 +26,7 @@ Beyond reads, flare-mcp gives agents a **wallet**: premium tools are payable per
 - **`get_fdc_proof_status`** — FDC (protocol id 200) Merkle root and finalization status for a voting round.
 - **`get_smart_account_info`** — Resolve the deterministic Flare address for an XRPL (`r...`) account via the MasterAccountController.
 
-New in **v2**:
+Enshrined-stack & settlement tools:
 
 - **`fdc_request_attestation`** — Submit an FDC attestation request (`Payment`, `AddressValidity`, `EVMTransaction`): prepares it via a Flare-hosted verifier, quotes the request fee, and submits to `FdcHub` (or returns the prepared request if no key is configured).
 - **`fdc_get_attestation_proof`** — Fetch an attestation proof from the Data Availability layer and **verify the Merkle proof locally** against the Relay root read on-chain.
@@ -45,9 +46,9 @@ Edit `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) o
 ```json
 {
   "mcpServers": {
-    "flare-mcp": {
+    "flario": {
       "command": "npx",
-      "args": ["-y", "@dziuba0x/flare-mcp"],
+      "args": ["-y", "flario"],
       "env": {
         "FLARE_RPC": "https://flare-api.flare.network/ext/C/rpc",
         "FLARE_RPC_TESTNET": "https://coston2-api.flare.network/ext/C/rpc"
@@ -68,9 +69,9 @@ Edit `~/.cursor/mcp.json` (global) or `.cursor/mcp.json` (per-project) and add:
 ```json
 {
   "mcpServers": {
-    "flare-mcp": {
+    "flario": {
       "command": "npx",
-      "args": ["-y", "@dziuba0x/flare-mcp"]
+      "args": ["-y", "flario"]
     }
   }
 }
@@ -125,7 +126,7 @@ Without `FLARE_PRIVATE_KEY`, step 1 returns `mode: "prepared_only"` with the enc
 
 ### x402 payments (premium tools)
 
-flare-mcp implements the [x402 payment protocol](https://www.x402.org/) adapted to MCP over stdio — the first MCP server whose paid tools settle **on the chain they serve**. HTTP's 402 status and `X-Payment` header map to tool results and a tool argument:
+Flario implements the [x402 payment protocol](https://www.x402.org/) adapted to MCP over stdio — the first MCP server whose paid tools settle **on the chain they serve**. HTTP's 402 status and `X-Payment` header map to tool results and a tool argument:
 
 ```text
 1. call a paid tool                → result: { x402_payment_required: true,
@@ -161,12 +162,12 @@ Payment tokens (EIP-3009, verified on-chain 2026-07): Coston2 defaults to `0xce1
 
 ### Hub mode (hosted HTTP service)
 
-Run flare-mcp as a network service instead of a local stdio process:
+Run Flario as a network service instead of a local stdio process:
 
 ```bash
-npx @dziuba0x/flare-mcp --http 8402         # or FLARE_MCP_HTTP_PORT=8402
+npx flario --http 8402         # or FLARIO_HTTP_PORT=8402
 # expose beyond localhost:
-FLARE_MCP_HTTP_HOST=0.0.0.0 npx @dziuba0x/flare-mcp --http 8402
+FLARIO_HTTP_HOST=0.0.0.0 npx flario --http 8402
 ```
 
 | Endpoint | What it serves |
@@ -180,8 +181,8 @@ FLARE_MCP_HTTP_HOST=0.0.0.0 npx @dziuba0x/flare-mcp --http 8402
 The REST endpoints use the standard x402 wire format (base64 JSON payload in `X-Payment`), so non-MCP agents and existing x402 clients can pay too. A `Dockerfile` ships in the repo:
 
 ```bash
-docker build -t flare-mcp-hub . && docker run -p 8402:8402 \
-  -e X402_ENABLED=true -e X402_PAY_TO=0xYou -e FLARE_PRIVATE_KEY=0x... flare-mcp-hub
+docker build -t flario-hub . && docker run -p 8402:8402 \
+  -e X402_ENABLED=true -e X402_PAY_TO=0xYou -e FLARE_PRIVATE_KEY=0x... flario-hub
 ```
 
 ---
@@ -228,8 +229,8 @@ See [`.env.example`](.env.example) for a copy-paste template.
 
 ```bash
 # clone
-git clone https://github.com/DziubaTechnology/flare-mcp.git
-cd flare-mcp
+git clone https://github.com/dziuba0x/flario.git
+cd flario
 
 # install
 npm install
@@ -255,7 +256,7 @@ npm run inspect
 
 **Stack:** TypeScript (ESM, Node ≥ 18) · [`@modelcontextprotocol/sdk`](https://github.com/modelcontextprotocol/typescript-sdk) · [`viem`](https://viem.sh) · [`zod`](https://zod.dev) · [`@flarenetwork/flare-periphery-contract-artifacts`](https://github.com/flare-foundation/flare-npm-periphery-package).
 
-The build emits an executable `dist/index.js` (with a `#!/usr/bin/env node` shebang) wired to the `flare-mcp` bin. Test individual tools without a client using the Inspector CLI, e.g.:
+The build emits an executable `dist/index.js` (with a `#!/usr/bin/env node` shebang) wired to the `flario` bin. Test individual tools without a client using the Inspector CLI, e.g.:
 
 ```bash
 npx @modelcontextprotocol/inspector --cli node dist/index.js \

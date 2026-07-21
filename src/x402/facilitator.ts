@@ -165,7 +165,7 @@ export function buildRequirements(
     asset: config.tokenAddress,
     payTo: config.payTo,
     maxAmountRequired: priceInUnits(config, toolName).toString(),
-    resource: `mcp://flare-mcp/tools/${toolName}`,
+    resource: `mcp://flario/tools/${toolName}`,
     description: `Payment for one ${toolName} call`,
     maxTimeoutSeconds: 300,
     extra: {

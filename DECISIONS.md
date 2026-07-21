@@ -172,6 +172,21 @@ On-chain receipt-hash anchoring was **deferred** (would add one tx per call,
 doubling gas on sub-cent pricing); the anchor today is the settlement tx hash,
 and the FDC attestation becomes the enshrined anchor once that path lands.
 
+## 11. Rebrand to Flario (operator decision, 2026-07-21)
+
+The project moved off the descriptive/generic name to an ownable brand: **Flario**
+(npm `flario` — the bare, unscoped name was free; repo github.com/dziuba0x/flario;
+command `npx flario`). Rationale: the bare `flare-mcp` was never available (taken
+by an unrelated product), and a generic name collides with the official Flare MCP
+and can't be owned. "Flario" = "Flare I/O" — reads as the input/output layer to
+Flare, keeps the Flare family association without impersonating (distinct word,
+own meaning), and is fully ownable (npm + flario.io/.xyz/.dev free). Checks: no
+crypto/dev collision; one unrelated `Flairio Labs` exists (different spelling
+FLAIRIO, video-commerce SaaS — different class, low risk); a formal trademark
+search is advisable before heavy brand spend but fine for an OSS launch. Version
+reset to 1.0.0 as the brand launch. Positioning keeps "Flare" and "MCP" in the
+tagline/keywords for discovery.
+
 ## 10. FDC-verified settlement — EVMTransaction, not Payment (operator-confirmed, 2026-07-21)
 
 The handoff (Principle 4) describes the differentiator as an "FDC **Payment**

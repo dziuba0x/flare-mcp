@@ -1,7 +1,7 @@
-// Hub mode: flare-mcp as a hostable paid service.
+// Hub mode: Flario as a hostable paid service.
 //
 //   POST /mcp                            MCP Streamable HTTP (stateless) —
-//                                        every flare-mcp tool, x402 in-band
+//                                        every Flario tool, x402 in-band
 //   GET  /api/premium/liquidation-scanner   x402 over real HTTP (spec-style):
 //   POST /api/premium/proof-bundle          402 + accepts → X-Payment header
 //                                           → result + X-Payment-Response
@@ -199,7 +199,7 @@ async function route(req: IncomingMessage, res: ServerResponse): Promise<void> {
     sendJson(res, 200, {
       ...SERVER_INFO,
       description:
-        "flare-mcp hub — Flare Network data for AI agents. MCP over Streamable HTTP at POST /mcp; premium REST endpoints paid via x402 (EIP-3009 on Flare).",
+        "Flario hub — Flare Network data + payments for AI agents. MCP over Streamable HTTP at POST /mcp; premium REST endpoints paid via x402 (EIP-3009 on Flare).",
       endpoints: {
         mcp: "POST /mcp (MCP Streamable HTTP, stateless; all 16 tools)",
         liquidation_scanner:
@@ -217,7 +217,7 @@ async function route(req: IncomingMessage, res: ServerResponse): Promise<void> {
             flow: "call → HTTP 402 + accepts[] → sign EIP-3009 TransferWithAuthorization → retry with X-Payment: base64(JSON payload) → result + X-Payment-Response",
           }
         : { enabled: false, note: "premium endpoints currently free" },
-      source: "https://github.com/dziuba0x/flare-mcp",
+      source: "https://github.com/dziuba0x/flario",
     });
     return;
   }
@@ -294,7 +294,7 @@ async function route(req: IncomingMessage, res: ServerResponse): Promise<void> {
 export async function startHub(
   port: number,
 ): Promise<ReturnType<typeof createServer>> {
-  const host = process.env.FLARE_MCP_HTTP_HOST ?? "127.0.0.1";
+  const host = process.env.FLARIO_HTTP_HOST ?? "127.0.0.1";
   const server = createServer((req, res) => {
     route(req, res).catch((err) => {
       process.stderr.write(`hub error: ${err instanceof Error ? err.stack ?? err.message : String(err)}\n`);
@@ -307,7 +307,7 @@ export async function startHub(
   });
   await new Promise<void>((resolve) => server.listen(port, host, resolve));
   process.stderr.write(
-    `flare-mcp hub listening on http://${host}:${port} (MCP: POST /mcp; set FLARE_MCP_HTTP_HOST=0.0.0.0 to expose)\n`,
+    `flario hub listening on http://${host}:${port} (MCP: POST /mcp; set FLARIO_HTTP_HOST=0.0.0.0 to expose)\n`,
   );
   return server;
 }

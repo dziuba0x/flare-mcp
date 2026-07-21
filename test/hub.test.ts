@@ -38,7 +38,7 @@ describe("hub HTTP endpoints", () => {
       endpoints: Record<string, string>;
       x402: { enabled: boolean; payTo?: string };
     };
-    expect(body.name).toBe("flare-mcp");
+    expect(body.name).toBe("flario");
     expect(body.endpoints.mcp).toContain("POST /mcp");
     expect(body.x402.enabled).toBe(true);
     expect(body.x402.payTo).toBe(PAYEE);

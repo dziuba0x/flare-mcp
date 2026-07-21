@@ -1,11 +1,11 @@
 #!/usr/bin/env node
-// flare-mcp entry point.
+// Flario entry point.
 //
-//   flare-mcp                 → MCP server over stdio (default; for Claude
-//                               Desktop, Cursor, VS Code, ...)
-//   flare-mcp --http [port]   → hub mode: MCP over Streamable HTTP at /mcp
-//                               plus spec-style x402 REST endpoints
-//                               (also: FLARE_MCP_HTTP_PORT env var)
+//   flario                 → MCP server over stdio (default; for Claude
+//                            Desktop, Cursor, VS Code, ...)
+//   flario --http [port]   → hub mode: MCP over Streamable HTTP at /mcp
+//                            plus spec-style x402 REST endpoints
+//                            (also: FLARIO_HTTP_PORT env var)
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { buildServer } from "./server.js";
 import { startHub } from "./hub.js";
@@ -13,7 +13,7 @@ import { startHub } from "./hub.js";
 async function main() {
   const args = process.argv.slice(2);
   const httpFlag = args.indexOf("--http");
-  const envPort = process.env.FLARE_MCP_HTTP_PORT;
+  const envPort = process.env.FLARIO_HTTP_PORT;
 
   if (httpFlag !== -1 || envPort) {
     const port = Number(
@@ -26,7 +26,7 @@ async function main() {
   const server = buildServer();
   const transport = new StdioServerTransport();
   await server.connect(transport);
-  process.stderr.write("flare-mcp server started\n");
+  process.stderr.write("flario server started\n");
 }
 
 main().catch((err) => {

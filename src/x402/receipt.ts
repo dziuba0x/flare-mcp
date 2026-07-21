@@ -25,7 +25,7 @@ import { keccak256, toBytes, getAddress, type Hex } from "viem";
 import { poseidon2 } from "poseidon-lite";
 import type { NetworkType } from "../utils/rpc.js";
 
-export const RECEIPT_SCHEMA_VERSION = "flare-mcp-receipt/1" as const;
+export const RECEIPT_SCHEMA_VERSION = "flario-receipt/1" as const;
 export const COMMITMENT_SCHEME = "poseidon-bn254/v1" as const;
 export const HASH_SCHEME = "keccak256/v1" as const;
 

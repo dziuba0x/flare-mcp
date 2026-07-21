@@ -106,7 +106,7 @@ export async function getFtsoProviders(args: { network: NetworkType }) {
         {
           type: "text" as const,
           text:
-            `get_ftso_providers needs an external FTSO indexer endpoint, which is not bundled with flare-mcp. ` +
+            `get_ftso_providers needs an external FTSO indexer endpoint, which is not bundled with Flario. ` +
             `Set the FLARE_PROVIDERS_API env var to an endpoint that returns a JSON array of providers ` +
             `(or { "providers": [...] }) to enable it. In the meantime you can browse providers for ` +
             `${network} at https://flare-systems-explorer.flare.network/providers.`,
@@ -190,7 +190,7 @@ export async function getFtsoHistory(args: {
           {
             type: "text" as const,
             text:
-              `get_ftso_history needs the Flare Data Availability (DA) Layer, which is not bundled with flare-mcp. ` +
+              `get_ftso_history needs the Flare Data Availability (DA) Layer, which is not bundled with Flario. ` +
               `Set the FLARE_DA_LAYER_API env var to a DA Layer base URL to enable historical results for ` +
               `"${name}" (${id}). Live values are available now via get_ftso_feed and get_ftso_feeds_all.`,
           },

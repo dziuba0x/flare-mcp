@@ -1,10 +1,10 @@
 {
-  "name": "@dziuba0x/flare-mcp",
-  "version": "0.5.0",
-  "description": "MCP server for Flare Network — FTSO prices, FAssets state, FDC attestations with local proof verification, and x402 micropayments settled on Flare",
+  "name": "flario",
+  "version": "1.0.0",
+  "description": "Flario — the agent-native MCP server for Flare Network: FTSO price feeds, FDC cross-chain attestations with local proof verification, FAssets state, and x402 agent micropayments with chain-verified receipts. For Claude, Cursor and any MCP client.",
   "type": "module",
   "bin": {
-    "flare-mcp": "dist/index.js"
+    "flario": "dist/index.js"
   },
   "files": [
     "dist"
@@ -18,14 +18,31 @@
     "test": "vitest run"
   },
   "keywords": [
-    "blockchain",
-    "fassets",
-    "fdc",
     "flare",
-    "ftso",
+    "flare-network",
     "mcp",
+    "mcp-server",
+    "model-context-protocol",
+    "x402",
+    "ftso",
+    "fdc",
+    "fassets",
     "songbird",
-    "x402"
+    "coston",
+    "ai-agent",
+    "ai-agents",
+    "agent-payments",
+    "micropayments",
+    "eip-3009",
+    "oracle",
+    "blockchain",
+    "crypto",
+    "defi",
+    "web3",
+    "claude",
+    "cursor",
+    "settlement",
+    "attestation"
   ],
   "author": "Alan Dziuba <alan.dziuba@op.pl>",
   "license": "MIT",
@@ -52,10 +69,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/dziuba0x/flare-mcp.git"
+    "url": "git+https://github.com/dziuba0x/flario.git"
   },
-  "homepage": "https://github.com/dziuba0x/flare-mcp#readme",
+  "homepage": "https://github.com/dziuba0x/flario#readme",
   "bugs": {
-    "url": "https://github.com/dziuba0x/flare-mcp/issues"
+    "url": "https://github.com/dziuba0x/flario/issues"
   }
 }

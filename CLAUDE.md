@@ -1,4 +1,15 @@
-# CLAUDE.md — flare-mcp Project Brief
+# CLAUDE.md — Flario Project Brief
+
+> **REBRAND (2026-07-21, nadrzędne): projekt nazywa się teraz `Flario`.**
+> npm: `flario` (goła nazwa, bez scope); komenda: `npx flario`; repo:
+> github.com/dziuba0x/flario; nazwa serwera MCP: `flario`; schemat paragonu:
+> `flario-receipt/1`; env vary huba: `FLARIO_HTTP_HOST/PORT` (ale sieciowe
+> `FLARE_RPC*`, `FLARE_PRIVATE_KEY` zostają z prefiksem `FLARE_`). W tekstach
+> „flare-mcp" = stara nazwa; produkt = Flario. „Flare"/„MCP" trzymamy w
+> taglinie i keywordach dla SEO. Handoff wizji: `~/Downloads/claude-code-handoff-prompt.md`.
+> Kierunek: warstwa rozliczeń ekonomii agentów (organy: ręce/MCP, portfel/x402,
+> paragon/FDC). Ścieżka „krawędź" — narzędzia dające dziś przewagę. Szczegóły:
+> `STATE.md`, `DECISIONS.md`, `RECEIPT_SPEC.md`.
 
 > **V2 AMENDMENTS (2026-07, nadrzędne wobec reszty pliku):**
 > 1. Sieci: **cztery** — mainnet (14), Coston2 (114), **Songbird (19), Coston (16)**; env vary `FLARE_RPC_SONGBIRD`, `FLARE_RPC_COSTON`.
