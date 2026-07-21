@@ -114,6 +114,10 @@ export interface PaymentPayload {
   v: number;
   r: Hex;
   s: Hex;
+  // Optional payer-chosen secret salt for the ZK-ready receipt commitment.
+  // NOT part of the EIP-712 authorization signature, so it can never affect
+  // fund movement — it only blinds the payer_commitment in the receipt.
+  commitment_salt?: string;
 }
 
 const CHAIN_IDS: Record<NetworkType, number> = {

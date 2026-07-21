@@ -153,6 +153,25 @@ before concluding anything from registry/site responses.
 
 Source repository: https://github.com/dziuba0x/flare-mcp (pushed 2026-07-17).
 
+## 8e. Receipt commitment primitive — Poseidon/BN254 (operator decision, 2026-07-21)
+
+Handoff Principle 3 requires receipts where the payer appears only as a
+commitment. The commitment primitive is load-bearing (it must match the future
+ZK stack) and cryptographic, so per Principle 3 it was flagged to the operator
+rather than guessed. Operator chose **Poseidon over BN254** (via `poseidon-lite`)
+over keccak256, because the future passport/reputation project uses the
+BabyJubjub + Poseidon (Circom/snarkjs) stack, where keccak-in-circuit costs
+~150k constraints. The receipt is self-describing (`commitment_scheme`,
+`hash_scheme`) so the choice can evolve. Full contract: `RECEIPT_SPEC.md`.
+
+Honest caveat recorded in the spec: under EIP-3009 the payer is already public
+on-chain, so the commitment is structural/forward-looking, not present-day
+privacy. We do not overclaim it.
+
+On-chain receipt-hash anchoring was **deferred** (would add one tx per call,
+doubling gas on sub-cent pricing); the anchor today is the settlement tx hash,
+and the FDC attestation becomes the enshrined anchor once that path lands.
+
 ## 9. EVMTransaction source chains
 
 Verifier docs list Ethereum, Flare and Songbird as EVMTransaction sources

@@ -18,6 +18,7 @@ import {
   settlePayment,
   type PaymentPayload,
 } from "./facilitator.js";
+import { buildReceipt } from "./receipt.js";
 
 type ToolResult = {
   isError?: boolean;
@@ -59,6 +60,9 @@ export function decodePayload(b64: string): PaymentPayload {
     v: Number(raw.v),
     r: String(raw.r) as PaymentPayload["r"],
     s: String(raw.s) as PaymentPayload["s"],
+    ...(raw.commitment_salt !== undefined
+      ? { commitment_salt: String(raw.commitment_salt) }
+      : {}),
   };
 }
 
@@ -124,20 +128,41 @@ export function withX402<T>(
       );
     }
 
+    // ZK-ready, shareable receipt (payer only as a commitment); see receipt.ts.
+    const zkReceipt = buildReceipt({
+      payer: payload.from,
+      payee: receipt.payee,
+      amount: receipt.amount_units,
+      asset: receipt.token,
+      network: receipt.network,
+      toolId: toolName,
+      settlementTxHash: receipt.tx_hash,
+      commitmentSalt: payload.commitment_salt,
+    });
+
     const result = await handler(rest);
     if (result.isError) {
       return result;
     }
-    // Attach the receipt to the (JSON) tool output.
+    // Attach both the settlement summary (payer's own record) and the
+    // canonical shareable receipt to the (JSON) tool output.
     try {
       const body = JSON.parse(result.content[0].text) as Record<string, unknown>;
       body.x402_payment_receipt = receipt;
+      body.x402_receipt = zkReceipt;
       return { content: [{ type: "text", text: JSON.stringify(body, null, 2) }] };
     } catch {
       return {
         content: [
           ...result.content,
-          { type: "text", text: JSON.stringify({ x402_payment_receipt: receipt }, null, 2) },
+          {
+            type: "text",
+            text: JSON.stringify(
+              { x402_payment_receipt: receipt, x402_receipt: zkReceipt },
+              null,
+              2,
+            ),
+          },
         ],
       };
     }

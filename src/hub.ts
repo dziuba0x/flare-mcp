@@ -21,6 +21,7 @@ import {
   type SettlementReceipt,
 } from "./x402/facilitator.js";
 import { decodePayload } from "./x402/paywall.js";
+import { buildReceipt, type Receipt } from "./x402/receipt.js";
 import {
   liquidationScannerCore,
   bulkProofBundleCore,
@@ -78,6 +79,7 @@ async function handlePaidRest(
   const config = loadX402Config();
 
   let receipt: SettlementReceipt | null = null;
+  let zkReceipt: Receipt | null = null;
   if (config) {
     const header = req.headers["x-payment"];
     const requirements = {
@@ -96,6 +98,16 @@ async function handlePaidRest(
       const payload = decodePayload(header);
       await verifyPayment(config, toolName, payload);
       receipt = await settlePayment(config, payload);
+      zkReceipt = buildReceipt({
+        payer: payload.from,
+        payee: receipt.payee,
+        amount: receipt.amount_units,
+        asset: receipt.token,
+        network: receipt.network,
+        toolId: toolName,
+        settlementTxHash: receipt.tx_hash,
+        commitmentSalt: payload.commitment_salt,
+      });
     } catch (err) {
       sendJson(res, 402, {
         error: `payment failed: ${err instanceof Error ? err.message : String(err)}`,
@@ -116,6 +128,11 @@ async function handlePaidRest(
   if (result.isError) {
     sendJson(res, 500, { error: body });
     return;
+  }
+  // Canonical shareable receipt travels in the body; the settlement summary
+  // stays in X-Payment-Response for x402-client compatibility.
+  if (zkReceipt && body && typeof body === "object") {
+    (body as Record<string, unknown>).x402_receipt = zkReceipt;
   }
   const headers: Record<string, string> = {};
   if (receipt) {

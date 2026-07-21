@@ -1,5 +1,20 @@
 # Changelog
 
+## Unreleased — ZK-ready settlement receipts (organ 3)
+
+- **`x402_receipt`**: every settled payment now emits a fixed-schema,
+  self-describing, portable receipt (`src/x402/receipt.ts`,
+  [`RECEIPT_SPEC.md`](RECEIPT_SPEC.md)). The payer appears only as a
+  **Poseidon (BN254) commitment**, never in plaintext; a keccak256
+  `receipt_hash` gives any holder tamper-evidence; `fdc_attestation_ref` is
+  reserved for the FDC-verified path (null for now). Payers may blind the
+  commitment with an optional `commitment_salt` in the payment payload (not
+  part of the EIP-712 authorization — it cannot affect fund movement).
+- Additive and backward-compatible: `x402_payment_receipt` (settlement
+  summary) is unchanged; `x402_receipt` is emitted alongside it on both the
+  MCP and HTTP transports. Live-verified end-to-end on Coston2.
+- New dependency: `poseidon-lite` (small, dependency-free Poseidon).
+
 ## 0.4.0 — 2026-07-17 — hub mode (hosted HTTP + spec-style x402)
 
 - **`--http [port]` / `FLARE_MCP_HTTP_PORT`**: run flare-mcp as a hostable

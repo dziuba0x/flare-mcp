@@ -32,6 +32,7 @@
   "dependencies": {
     "@flarenetwork/flare-periphery-contract-artifacts": "^0.1.52",
     "@modelcontextprotocol/sdk": "^1.29.0",
+    "poseidon-lite": "^0.3.0",
     "viem": "^2.51.3",
     "zod": "^4.4.3"
   },

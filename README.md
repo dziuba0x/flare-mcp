@@ -8,6 +8,10 @@ The first [Model Context Protocol](https://modelcontextprotocol.io) server for [
 
 **v2** adds FDC attestation workflows (request + locally-verified proofs), deep FAssets state (per-agent collateral and liquidation status, system totals, redemption queue), Songbird/Coston support, and an FCC (Flare Confidential Compute) registry watcher. All reads are trustless where possible: FDC proofs are Merkle-verified locally against the on-chain Relay root, never trusted from an API. The only optional write is `fdc_request_attestation`, which submits an attestation request *if* you configure `FLARE_PRIVATE_KEY` — without it the tool returns a prepared request for your own signer, and the server never holds or forwards funds.
 
+Beyond reads, flare-mcp gives agents a **wallet**: premium tools are payable per call via [x402](https://www.x402.org/) settled on Flare, and every paid call returns a portable, chain-anchored **receipt** (see [`RECEIPT_SPEC.md`](RECEIPT_SPEC.md)). The facilitator never holds funds.
+
+> **Complementary to the official Flare MCP server.** Flare's own MCP server (`dev.flare.network/mcp`) is documentation search/fetch — it gives agents *knowledge*. flare-mcp gives agents *hands and a wallet*: it calls the enshrined protocols (FTSO/FDC/FAssets/FCC) and lets agents pay for computed results. Use both.
+
 ---
 
 ## Features
@@ -128,10 +132,13 @@ flare-mcp implements the [x402 payment protocol](https://www.x402.org/) adapted 
 3. retry the SAME call with        → x402_payment: base64(JSON payload)
 4. server verifies the EIP-712 signature locally, checks the nonce on-chain,
    settles transferWithAuthorization on Flare, runs the tool
-   → result includes { x402_payment_receipt: { tx_hash, ... } }
+   → result includes x402_payment_receipt (settlement summary) and
+     x402_receipt (portable, ZK-ready receipt — see RECEIPT_SPEC.md)
 ```
 
 The built-in facilitator **never holds funds**: `transferWithAuthorization` moves tokens directly payer → payee; the operator key only pays gas to broadcast the client-signed authorization. Replay is blocked twice: EIP-3009 nonces are consumed on-chain, and settled nonces are additionally cached in-process.
+
+Every paid call returns a portable `x402_receipt`: a fixed-schema, self-describing record where the payer appears only as a Poseidon commitment (never in plaintext), with a keccak256 `receipt_hash` any holder can recompute for tamper-evidence. Payers can blind their commitment with an optional `commitment_salt` in the payment payload. Full contract: [`RECEIPT_SPEC.md`](RECEIPT_SPEC.md).
 
 Server-side setup (operator):
 
