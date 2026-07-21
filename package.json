@@ -1,6 +1,6 @@
 {
   "name": "flario",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Flario — the agent-native MCP server for Flare Network: FTSO price feeds, FDC cross-chain attestations with local proof verification, FAssets state, and x402 agent micropayments with chain-verified receipts. For Claude, Cursor and any MCP client.",
   "type": "module",
   "bin": {

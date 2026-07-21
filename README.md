@@ -21,7 +21,8 @@ Beyond reads, Flario gives agents a **wallet**: premium tools are payable per ca
 - **`get_ftso_feed`** — Latest FTSO v2 price for a single feed, by name (`FLR/USD`) or raw `bytes21` id.
 - **`get_ftso_feeds_all`** — Latest FTSO v2 prices for all bundled feeds in one call.
 - **`get_ftso_providers`** — Active FTSO data providers (vote power, fee, reward rate). *Needs an indexer endpoint — see [Environment Variables](#environment-variables).*
-- **`get_ftso_history`** — Recent historical FTSO results for a feed. *Needs a Data Availability Layer endpoint — see [Environment Variables](#environment-variables).*
+- **`get_ftso_anchor_feed`** — Proof-carrying FTSO Scaling price: the value **plus a Merkle proof verified locally** against the on-chain Relay root. Trust-minimized — usable by an agent or a smart contract without trusting the API.
+- **`get_ftso_history`** — Recent FTSO Scaling anchor-feed history for a feed, from the public Data Availability layer (no external indexer needed); each point Merkle-verified.
 - **`get_fassets_status`** — FAssets status (total minted, active agents) for FXRP, FBTC or FDOGE, read on-chain.
 - **`get_fdc_proof_status`** — FDC (protocol id 200) Merkle root and finalization status for a voting round.
 - **`get_smart_account_info`** — Resolve the deterministic Flare address for an XRPL (`r...`) account via the MasterAccountController.
@@ -83,7 +84,7 @@ The same block works in any MCP client that supports stdio servers (VS Code, Win
 
 ## Tools Reference
 
-Every tool validates its input with [zod](https://zod.dev) and returns a clear error message (rather than crashing) when an RPC call or data source is unavailable. Fourteen tools are **free**; the two premium computed tools settle via [x402 micropayments on Flare](#x402-payments-premium-tools) when the operator enables it (and are free otherwise).
+Every tool validates its input with [zod](https://zod.dev) and returns a clear error message (rather than crashing) when an RPC call or data source is unavailable. Fifteen tools are **free**; the two premium computed tools settle via [x402 micropayments on Flare](#x402-payments-premium-tools) when the operator enables it (and are free otherwise).
 
 | Tool | Networks | Tier | Description |
 | --- | --- | --- | --- |
@@ -91,7 +92,8 @@ Every tool validates its input with [zod](https://zod.dev) and returns a clear e
 | `get_ftso_feed` | mainnet, coston2, songbird, coston | Free | Latest price for one FTSO feed (`"FLR/USD"` or `bytes21` id) |
 | `get_ftso_feeds_all` | mainnet, coston2, songbird, coston | Free | Latest price for every bundled feed |
 | `get_ftso_providers` | mainnet, coston2 † | Free | Active FTSO data providers |
-| `get_ftso_history` | mainnet, coston2 † | Free | Recent historical results for a feed |
+| `get_ftso_anchor_feed` | mainnet, coston2, songbird, coston | Free | Proof-carrying FTSO Scaling price + Merkle proof, verified locally vs the on-chain Relay root |
+| `get_ftso_history` | mainnet, coston2, songbird, coston | Free | Recent FTSO Scaling anchor-feed history from the public DA layer; each point Merkle-verified |
 | `get_fassets_status` | mainnet, coston2 | Free | FAssets minted total and agent count (v1 summary; see `fassets_system_state`) |
 | `get_fdc_proof_status` | mainnet, coston2, songbird, coston | Free | FDC Merkle root + finalization for a round |
 | `get_smart_account_info` | mainnet, coston2 ‡ | Free | Resolve the Flare address of an XRPL account |
@@ -172,7 +174,7 @@ FLARIO_HTTP_HOST=0.0.0.0 npx flario --http 8402
 
 | Endpoint | What it serves |
 | --- | --- |
-| `POST /mcp` | Full MCP server over Streamable HTTP (stateless) — all 16 tools, x402 in-band |
+| `POST /mcp` | Full MCP server over Streamable HTTP (stateless) — all 17 tools, x402 in-band |
 | `GET /api/premium/liquidation-scanner?asset=FXRP&network=mainnet` | Spec-style **HTTP x402**: `402` + `accepts[]` → retry with `X-Payment` header → result + `X-Payment-Response` (settlement tx) |
 | `POST /api/premium/proof-bundle` | Same x402 flow; body `{"requests":[{"voting_round_id":N,"abi_encoded_request":"0x…"}],"network":"…"}` |
 | `GET /` | Discovery: endpoints, x402 config, pricing |
@@ -218,7 +220,6 @@ All are optional; the server runs against the public RPCs and Flare-hosted FDC s
 | `X402_TOKEN_ADDRESS` | x402 | EIP-3009 payment token override (defaults: Coston2 test USDT0, mainnet USD₮0). |
 | `X402_PRICE_DEFAULT` / `X402_PRICE_<TOOL>` | x402 | Prices in whole-token units (default `0.001`). |
 | `FLARE_PROVIDERS_API` | `get_ftso_providers` | An indexer endpoint returning a JSON array of providers (or `{ "providers": [...] }`). |
-| `FLARE_DA_LAYER_API` | `get_ftso_history` | Base URL of a Flare Data Availability Layer / indexer for historical feed results. |
 | `FLARE_METRICS_API` | `get_fassets_status` | Optional fallback metrics API, used only if the on-chain read fails. |
 
 See [`.env.example`](.env.example) for a copy-paste template.

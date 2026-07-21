@@ -13,6 +13,8 @@ import {
   getFtsoProvidersInput,
   getFtsoHistory,
   getFtsoHistoryInput,
+  getFtsoAnchorFeed,
+  getFtsoAnchorFeedInput,
 } from "./tools/ftso.js";
 import {
   getFassetsStatus,
@@ -55,7 +57,7 @@ import {
 import { registerNetworkResources } from "./resources/network.js";
 
 
-export const SERVER_INFO = { name: "flario", version: "1.0.0" } as const;
+export const SERVER_INFO = { name: "flario", version: "1.1.0" } as const;
 
 export function buildServer(): McpServer {
   const server = new McpServer({ ...SERVER_INFO });
@@ -89,8 +91,15 @@ server.tool(
 );
 
 server.tool(
+  "get_ftso_anchor_feed",
+  "Get a proof-carrying FTSO Scaling anchor feed: the price plus a Merkle proof verified LOCALLY against the on-chain Relay root (FTSO Scaling protocol 100). Trust-minimized — usable by an agent or a smart contract without trusting the DA API. Defaults to the latest finalized round.",
+  getFtsoAnchorFeedInput,
+  getFtsoAnchorFeed,
+);
+
+server.tool(
   "get_ftso_history",
-  "Get recent historical FTSO results for a feed (by name or bytes21 id) from the Flare Data Availability layer.",
+  "Get recent FTSO Scaling anchor-feed history for a feed (by name or bytes21 id) from the public Flare Data Availability layer — no external indexer needed. Each point is optionally Merkle-verified against the on-chain Relay root.",
   getFtsoHistoryInput,
   getFtsoHistory,
 );

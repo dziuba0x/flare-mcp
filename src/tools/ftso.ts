@@ -1,7 +1,16 @@
-// FTSO tools: get_ftso_feed, get_ftso_feeds_all
+// FTSO tools: get_ftso_feed, get_ftso_feeds_all, get_ftso_anchor_feed, get_ftso_history
 import { z } from "zod";
 import { getClient, type NetworkType } from "../utils/rpc.js";
 import { getContractAddress, FTSO_FEEDS } from "../utils/contracts.js";
+import {
+  resolveAnchorFeedId,
+  fetchAnchorFeeds,
+  fetchLatestFinalizedAnchor,
+  verifyAnchorFeed,
+  anchorFeedPrice,
+  latestVotingRound,
+  type AnchorFeedWithProof,
+} from "../utils/ftso-da.js";
 
 const FTSO_V2_ABI = [
   {
@@ -164,71 +173,170 @@ export async function getFtsoProviders(args: { network: NetworkType }) {
   }
 }
 
-export const getFtsoHistoryInput = {
+export const getFtsoAnchorFeedInput = {
   feed_id: z.string(),
-  rounds: z.number().min(1).max(100).default(10),
-  network: z.enum(["mainnet", "coston2"]),
+  network: z.enum(["mainnet", "coston2", "songbird", "coston"]),
+  voting_round_id: z.number().int().positive().optional(),
 };
 
-export async function getFtsoHistory(args: {
+/**
+ * Proof-carrying FTSO Scaling anchor feed: the price plus a Merkle proof
+ * verified LOCALLY against the on-chain Relay root (FTSO Scaling protocol id
+ * 100). The returned value is trust-minimized — an agent or a downstream
+ * contract can rely on it without trusting the DA API.
+ */
+export async function getFtsoAnchorFeed(args: {
   feed_id: string;
-  rounds?: number;
   network: NetworkType;
+  voting_round_id?: number;
 }) {
-  const { feed_id, rounds = 10, network } = args;
+  const { feed_id, network, voting_round_id } = args;
   try {
-    const { id, name } = resolveFeed(feed_id);
+    const id = await resolveAnchorFeedId(feed_id, network);
+    const known = FTSO_FEEDS.find((f) => f.id.toLowerCase() === id);
 
-    // Historical anchor-feed results are not queryable on-chain; they require
-    // the Flare Data Availability (DA) Layer or an equivalent indexer. The base
-    // URL is operator-configurable; none ships by default.
-    const base = process.env.FLARE_DA_LAYER_API;
-    if (!base) {
+    let feed: AnchorFeedWithProof | undefined;
+    let round: number;
+    if (voting_round_id !== undefined) {
+      round = voting_round_id;
+      feed = (await fetchAnchorFeeds([id], round, network))[0];
+    } else {
+      const latest = await fetchLatestFinalizedAnchor([id], network);
+      round = latest.votingRoundId;
+      feed = latest.feeds.find((f) => f.body.id.toLowerCase() === id) ?? latest.feeds[0];
+    }
+    if (!feed) {
       return {
         isError: true,
         content: [
           {
             type: "text" as const,
-            text:
-              `get_ftso_history needs the Flare Data Availability (DA) Layer, which is not bundled with Flario. ` +
-              `Set the FLARE_DA_LAYER_API env var to a DA Layer base URL to enable historical results for ` +
-              `"${name}" (${id}). Live values are available now via get_ftso_feed and get_ftso_feeds_all.`,
+            text: `No anchor feed for "${feed_id}" (${id}) in voting round ${round} on ${network}. The round may not be finalized yet.`,
           },
         ],
       };
     }
 
-    const res = await fetch(
-      `${base.replace(/\/$/, "")}/api/v1/ftso/results?feed_id=${encodeURIComponent(id)}&limit=${rounds}`,
-    );
-    if (!res.ok) {
-      throw new Error(`DA Layer API responded with HTTP ${res.status}`);
+    const { verified, merkleRoot } = await verifyAnchorFeed(feed, network);
+    if (!verified) {
+      return {
+        isError: true,
+        content: [
+          {
+            type: "text" as const,
+            text: `Merkle verification FAILED for "${feed_id}" in round ${round} on ${network}: the DA-layer proof does not match the on-chain FTSO Scaling root (${merkleRoot}). Do not trust this value.`,
+          },
+        ],
+      };
     }
 
-    const raw = (await res.json()) as unknown;
-    const list = Array.isArray(raw)
-      ? raw
-      : Array.isArray((raw as { results?: unknown }).results)
-        ? (raw as { results: unknown[] }).results
-        : [];
-
-    const history = list.map((r) => {
-      const o = r as Record<string, unknown>;
-      return {
-        round_id: o.round_id ?? o.votingRoundId ?? o.voting_round_id ?? null,
-        price: o.price ?? o.value ?? null,
-        decimals: o.decimals ?? null,
-        timestamp: o.timestamp ?? null,
-        turnout_bips: o.turnout_bips ?? o.turnoutBIPS ?? null,
-      };
-    });
-
-    const result = { feed_id: id, name, network, rounds, history };
-
+    const result = {
+      verified: true,
+      verification:
+        "Local: keccak256(abi.encode(feed body)) folded through the Merkle proof equals Relay.merkleRoots(100, round) read on-chain.",
+      feed_id: id,
+      name: known?.name ?? feed_id,
+      price: anchorFeedPrice(feed.body),
+      value: feed.body.value,
+      decimals: feed.body.decimals,
+      turnout_bips: feed.body.turnoutBIPS,
+      voting_round_id: round,
+      network,
+      merkle_root: merkleRoot,
+      proof: feed.proof,
+    };
     return {
+      content: [{ type: "text" as const, text: JSON.stringify(result, null, 2) }],
+    };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    return {
+      isError: true,
       content: [
-        { type: "text" as const, text: JSON.stringify(result, null, 2) },
+        {
+          type: "text" as const,
+          text: `Failed to fetch anchor feed "${feed_id}" on ${network}: ${message}`,
+        },
       ],
+    };
+  }
+}
+
+export const getFtsoHistoryInput = {
+  feed_id: z.string(),
+  rounds: z.number().int().min(1).max(30).default(10),
+  network: z.enum(["mainnet", "coston2", "songbird", "coston"]),
+  verify: z.boolean().default(true),
+};
+
+/**
+ * Recent FTSO Scaling anchor-feed history for one feed, straight from the
+ * public DA layer (no external indexer needed). Each point is optionally
+ * Merkle-verified against the on-chain Relay root.
+ */
+export async function getFtsoHistory(args: {
+  feed_id: string;
+  rounds?: number;
+  network: NetworkType;
+  verify?: boolean;
+}) {
+  const { feed_id, rounds = 10, network, verify = true } = args;
+  try {
+    const id = await resolveAnchorFeedId(feed_id, network);
+    const known = FTSO_FEEDS.find((f) => f.id.toLowerCase() === id);
+    const latest = await latestVotingRound(network);
+
+    // One anchor query per round; skip the very latest (may be unfinalized).
+    const roundIds: number[] = [];
+    for (let r = latest - 1; r > latest - 1 - rounds && r > 0; r--) {
+      roundIds.push(r);
+    }
+
+    const history: Array<Record<string, unknown>> = [];
+    const batchSize = 5;
+    for (let i = 0; i < roundIds.length; i += batchSize) {
+      const batch = roundIds.slice(i, i + batchSize);
+      const results = await Promise.all(
+        batch.map(async (round) => {
+          try {
+            const feeds = await fetchAnchorFeeds([id], round, network);
+            const feed = feeds.find((f) => f.body.id.toLowerCase() === id);
+            if (!feed) return null;
+            let verified: boolean | undefined;
+            if (verify) {
+              verified = (await verifyAnchorFeed(feed, network)).verified;
+            }
+            return {
+              round_id: feed.body.votingRoundId,
+              price: anchorFeedPrice(feed.body),
+              value: feed.body.value,
+              decimals: feed.body.decimals,
+              turnout_bips: feed.body.turnoutBIPS,
+              ...(verify ? { verified } : {}),
+            };
+          } catch {
+            return null;
+          }
+        }),
+      );
+      for (const r of results) {
+        if (r) history.push(r);
+      }
+    }
+
+    const result = {
+      feed_id: id,
+      name: known?.name ?? feed_id,
+      network,
+      rounds_requested: rounds,
+      rounds_returned: history.length,
+      source: verify
+        ? "Flare DA layer; each point Merkle-verified against the on-chain Relay root (protocol 100)"
+        : "Flare DA layer (unverified series; set verify=true for proofs)",
+      history,
+    };
+    return {
+      content: [{ type: "text" as const, text: JSON.stringify(result, null, 2) }],
     };
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);

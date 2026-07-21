@@ -172,6 +172,21 @@ On-chain receipt-hash anchoring was **deferred** (would add one tx per call,
 doubling gas on sub-cent pricing); the anchor today is the settlement tx hash,
 and the FDC attestation becomes the enshrined anchor once that path lands.
 
+## 12. Proof-carrying FTSO anchor feeds (P1, 2026-07-21)
+
+Edge-path P1: make FTSO trust-minimized. FTSO Scaling anchor feeds are published
+per voting epoch with a Merkle proof. Resolved empirically (as promised, not
+guessed): the on-chain root is `Relay.merkleRoots(100, votingRoundId)` (FTSO
+Scaling = protocol id 100; FDC = 200), and the Merkle leaf is
+`keccak256(abi.encode(body))` where body = `{votingRoundId uint32, id bytes21,
+value int32, turnoutBIPS uint16, decimals int8}`, sorted-pair fold — confirmed
+two ways: local fold == on-chain root, AND `FtsoV2Interface.verifyFeedData`
+returns true. DA endpoints: `/api/v0/ftso/anchor-feeds-with-proof` (POST,
+feed_ids + voting_round_id) and `/api/v0/ftso/anchor-feed-names`. `get_ftso_history`
+rewired to the public DA layer (dropped the `FLARE_DA_LAYER_API` requirement).
+Live-verified on Coston2 + mainnet (FLR/USD, plus a non-bundled feed AAVE/USD to
+prove name resolution).
+
 ## 11. Rebrand to Flario (operator decision, 2026-07-21)
 
 The project moved off the descriptive/generic name to an ownable brand: **Flario**

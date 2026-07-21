@@ -1,5 +1,22 @@
 # Changelog
 
+## 1.1.0 — 2026-07-21 — proof-carrying FTSO feeds
+
+Deepening enshrined-stack coverage (the "be the complete Flare MCP" track).
+
+- **`get_ftso_anchor_feed`** (new): proof-carrying FTSO Scaling price — the
+  value plus a Merkle proof verified **locally** against the on-chain Relay
+  root (FTSO Scaling protocol id 100). Trust-minimized: an agent or a smart
+  contract can rely on it without trusting the DA API. Leaf construction
+  (`keccak256(abi.encode(body))`, sorted-pair fold) was resolved empirically
+  and cross-confirmed against `FtsoV2Interface.verifyFeedData`. Resolves any
+  feed by name (the full ~100+ anchor catalog) or `bytes21` id. All networks.
+- **`get_ftso_history`** (fixed): now works against the **public** Flare Data
+  Availability layer out of the box — no external indexer / `FLARE_DA_LAYER_API`
+  needed. Returns recent anchor-feed points, each optionally Merkle-verified.
+  All four networks.
+- 17 tools; 70 tests (added offline anchor-feed verification fixtures).
+
 ## 1.0.0 — 2026-07-21 — Flario
 
 Project renamed from `@dziuba0x/flare-mcp` to **Flario** (npm: `flario`; command:
