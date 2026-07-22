@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.2.2 — 2026-07-21 — README voice (docs only)
+
+- Rewrote the README, npm description and GitHub description in a plain,
+  human voice (no em-dashes or other stylistic tells). No code changes.
+
 ## 1.2.1 — 2026-07-21 — README polish (P3, docs only)
 
 - Marketing-oriented README: added **Why Flario** (differentiators), **Examples**

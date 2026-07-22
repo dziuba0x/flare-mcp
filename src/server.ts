@@ -60,7 +60,7 @@ import {
 import { registerNetworkResources } from "./resources/network.js";
 
 
-export const SERVER_INFO = { name: "flario", version: "1.2.1" } as const;
+export const SERVER_INFO = { name: "flario", version: "1.2.2" } as const;
 
 export function buildServer(): McpServer {
   const server = new McpServer({ ...SERVER_INFO });
