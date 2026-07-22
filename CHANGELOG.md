@@ -1,5 +1,19 @@
 # Changelog
 
+## 1.2.0 — 2026-07-21 — Flare portfolio + agent identity (edge path P2)
+
+- **`get_flr_stake_info`** (new): one-call "Flare portfolio" for an address —
+  native FLR + wrapped WFLR, FTSO vote power and delegation (WNat/VPToken),
+  claimable protocol rewards broken down by source (RewardManager
+  `getStateOfRewards` — read-only, no claim proofs needed), and FlareDrops
+  (DistributionToDelegators, best-effort). All four networks; each section
+  degrades gracefully where a contract is absent/inactive.
+- **`fassets_agent_details`** (new): human-facing agent info — name,
+  description, logo/icon URL, terms-of-use URL and whitelist status from the
+  AgentOwnerRegistry. Accepts an agent vault or an owner management address.
+- 19 tools; 74 tests. Live-verified on mainnet (real agent "Oracle-daemon"
+  name/logo resolved; portfolio reads incl. reward source breakdown).
+
 ## 1.1.0 — 2026-07-21 — proof-carrying FTSO feeds
 
 Deepening enshrined-stack coverage (the "be the complete Flare MCP" track).

@@ -375,3 +375,112 @@ export async function fassetsSystemState(args: {
     );
   }
 }
+
+// --- fassets_agent_details: human-facing agent info (name/logo/terms) ---
+// via IAgentOwnerRegistry, address from AssetManager.getSettings().agentOwnerRegistry
+// per https://dev.flare.network/fassets/developer-guides/fassets-agent-details
+
+export const fassetsAgentDetailsInput = {
+  agent: z.string().regex(/^0x[a-fA-F0-9]{40}$/),
+  asset: z.enum(["FXRP", "FBTC", "FDOGE"]).default("FXRP"),
+  network: z.enum(["mainnet", "coston2", "songbird", "coston"]),
+};
+
+export async function fassetsAgentDetails(args: {
+  agent: string;
+  asset?: "FXRP" | "FBTC" | "FDOGE";
+  network: NetworkType;
+}) {
+  const asset = args.asset ?? "FXRP";
+  const { network } = args;
+  try {
+    const agent = getAddress(args.agent);
+    const manager = await resolveAssetManager(asset, network);
+    if (!manager) {
+      return toolError(
+        `No AssetManager for ${asset} in the ${network} FlareContractRegistry. As of 2026-07 only FXRP is live.`,
+      );
+    }
+    const client = getClient(network);
+    const abi = getInterfaceAbi("IAssetManager", network);
+
+    // `agent` may be an agent vault or a management address. If it's a vault,
+    // resolve its owner management address; otherwise use it directly.
+    let managementAddress: Address = agent;
+    let agentVault: Address | null = null;
+    try {
+      const info = (await client.readContract({
+        address: manager,
+        abi,
+        functionName: "getAgentInfo",
+        args: [agent],
+      })) as { ownerManagementAddress: Address };
+      managementAddress = getAddress(info.ownerManagementAddress);
+      agentVault = agent;
+    } catch {
+      // not a vault — treat `agent` as the management address
+    }
+
+    const settings = (await client.readContract({
+      address: manager,
+      abi,
+      functionName: "getSettings",
+    })) as { agentOwnerRegistry: Address };
+    const registry = getAddress(settings.agentOwnerRegistry);
+    const regAbi = getInterfaceAbi("IAgentOwnerRegistry", network);
+
+    const call = (fn: string) =>
+      client.readContract({
+        address: registry,
+        abi: regAbi,
+        functionName: fn,
+        args: [managementAddress],
+      }) as Promise<string>;
+    const [name, description, iconUrl, termsOfUseUrl, whitelisted] =
+      await Promise.all([
+        call("getAgentName").catch(() => ""),
+        call("getAgentDescription").catch(() => ""),
+        call("getAgentIconUrl").catch(() => ""),
+        call("getAgentTermsOfUseUrl").catch(() => ""),
+        client
+          .readContract({ address: registry, abi: regAbi, functionName: "isWhitelisted", args: [managementAddress] })
+          .then((v) => Boolean(v))
+          .catch(() => null),
+      ]);
+
+    if (!name && whitelisted !== true) {
+      return toolError(
+        `No agent found for ${agent} on ${network} (${asset}). Pass an agent vault address or an owner management address (see fassets_agent_status → ownerManagementAddress).`,
+      );
+    }
+
+    return {
+      content: [
+        {
+          type: "text" as const,
+          text: JSON.stringify(
+            {
+              asset,
+              network,
+              agent_vault: agentVault,
+              management_address: managementAddress,
+              name,
+              description,
+              icon_url: iconUrl,
+              terms_of_use_url: termsOfUseUrl,
+              whitelisted,
+              agent_owner_registry: registry,
+            },
+            null,
+            2,
+          ),
+        },
+      ],
+    };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    return toolError(
+      `Failed to fetch agent details for ${args.agent} on ${network}: ${message}`,
+    );
+  }
+}

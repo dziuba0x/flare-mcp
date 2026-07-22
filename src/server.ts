@@ -39,7 +39,10 @@ import {
   fassetsAgentStatusInput,
   fassetsSystemState,
   fassetsSystemStateInput,
+  fassetsAgentDetails,
+  fassetsAgentDetailsInput,
 } from "./tools/fassets-v2.js";
+import { getFlrStakeInfo, getFlrStakeInfoInput } from "./tools/stake.js";
 import {
   songbirdFccRegistry,
   songbirdFccRegistryInput,
@@ -57,7 +60,7 @@ import {
 import { registerNetworkResources } from "./resources/network.js";
 
 
-export const SERVER_INFO = { name: "flario", version: "1.1.0" } as const;
+export const SERVER_INFO = { name: "flario", version: "1.2.0" } as const;
 
 export function buildServer(): McpServer {
   const server = new McpServer({ ...SERVER_INFO });
@@ -67,6 +70,13 @@ server.tool(
   "Get native FLR balance and wrapped WFLR (WNat) balance for an EVM address on Flare mainnet or Coston2 testnet.",
   getFlrBalanceInput,
   getFlrBalance,
+);
+
+server.tool(
+  "get_flr_stake_info",
+  "One-call Flare portfolio for an address: native FLR + wrapped WFLR, FTSO vote power and delegation, claimable protocol rewards (by source), and FlareDrops. All four networks.",
+  getFlrStakeInfoInput,
+  getFlrStakeInfo,
 );
 
 server.tool(
@@ -151,6 +161,13 @@ server.tool(
   "Global FAssets system state for an asset: total minted, agent count, lot size, minting cap/pause, aggregated vault+pool collateral, and the redemption queue (tickets, value, lots).",
   fassetsSystemStateInput,
   fassetsSystemState,
+);
+
+server.tool(
+  "fassets_agent_details",
+  "Human-facing details of a FAssets agent (name, description, icon/logo URL, terms-of-use URL, whitelist status) from the AgentOwnerRegistry. Accepts an agent vault address or an owner management address.",
+  fassetsAgentDetailsInput,
+  fassetsAgentDetails,
 );
 
 server.tool(

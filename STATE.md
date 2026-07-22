@@ -12,16 +12,17 @@ DECISIONS §11. "Flare"/"MCP" kept in tagline+keywords for discovery.
 
 ## Snapshot
 
-- Package: **`flario` — v1.1.0** on npm (bare name); repo public at
+- Package: **`flario` — v1.2.0** on npm (bare name); repo public at
   github.com/dziuba0x/flario; git tree clean.
-- Tests: 70 passing (vitest, recorded fixtures + hub integration). `npm test` green.
-- Tools: 17. Transports: stdio (default) and hub mode (`--http`, MCP Streamable
-  HTTP + spec-style x402 REST).
-- Strategy: EDGE path chosen (be THE complete Flare MCP). P1 DONE = proof-carrying
-  FTSO anchor feeds (`get_ftso_anchor_feed`) + `get_ftso_history` fixed to the
-  public DA layer (DECISIONS §12). Next: P2 (staking/delegation/rewards +
-  `fassets_agent_details`), P3 (README quickstart + demo GIF/asciinema — GitHub
-  is the only marketing).
+- Tests: 74 passing (vitest, recorded fixtures + hub integration). `npm test` green.
+- Tools: 19 (17 free + 2 premium). Transports: stdio (default) and hub mode
+  (`--http`, MCP Streamable HTTP + spec-style x402 REST).
+- Strategy: EDGE path (be THE complete Flare MCP). P1 DONE (proof-carrying FTSO
+  anchor feeds + fixed history, DECISIONS §12). P2 DONE = `get_flr_stake_info`
+  (portfolio: FLR/WFLR, vote power, delegation, claimable rewards by source via
+  RewardManager.getStateOfRewards, FlareDrops) + `fassets_agent_details`
+  (name/logo/terms via AgentOwnerRegistry). Next: P3 = README quickstart +
+  demo GIF/asciinema (GitHub is the only marketing).
 - Live-verified on-chain (Coston2): FDC full cycle (own attestation, round
   1397964), x402 settlement over MCP (tx 0x19eb…a7dd) and over HTTP
   (tx 0xf230…cab2, replay rejected).

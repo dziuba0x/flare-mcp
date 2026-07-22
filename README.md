@@ -18,6 +18,7 @@ Beyond reads, Flario gives agents a **wallet**: premium tools are payable per ca
 ## Features
 
 - **`get_flr_balance`** — Native FLR and wrapped WFLR (WNat) balance for any EVM address.
+- **`get_flr_stake_info`** — One-call Flare portfolio for an address: FLR + WFLR, FTSO vote power and delegation, claimable protocol rewards (by source), and FlareDrops.
 - **`get_ftso_feed`** — Latest FTSO v2 price for a single feed, by name (`FLR/USD`) or raw `bytes21` id.
 - **`get_ftso_feeds_all`** — Latest FTSO v2 prices for all bundled feeds in one call.
 - **`get_ftso_providers`** — Active FTSO data providers (vote power, fee, reward rate). *Needs an indexer endpoint — see [Environment Variables](#environment-variables).*
@@ -33,6 +34,7 @@ Enshrined-stack & settlement tools:
 - **`fdc_get_attestation_proof`** — Fetch an attestation proof from the Data Availability layer and **verify the Merkle proof locally** against the Relay root read on-chain.
 - **`fassets_agent_status`** — Every FAssets agent with collateral ratios, minting capacity, minted/reserved amounts and liquidation status, sorted riskiest-first.
 - **`fassets_system_state`** — Global FAssets stats: total minted, lot size, minting cap/pause, aggregated vault+pool collateral, redemption queue.
+- **`fassets_agent_details`** — Human-facing agent info (name, description, logo, terms-of-use, whitelist status) from the AgentOwnerRegistry.
 - **`songbird_fcc_registry`** — Live FlareContractRegistry scan for Flare Confidential Compute (PMW/TEE) deployments post-STP.13.
 - **`fdc_verify_settlement`** — Prove an x402 settlement via Flare's **enshrined FDC**, not the facilitator's word: an EVMTransaction attestation over the settlement tx, locally Merkle-verified and *bound* to the payment (the attested tx must contain the ERC-20 Transfer of the asset to the payee for ≥ the amount).
 
@@ -84,11 +86,12 @@ The same block works in any MCP client that supports stdio servers (VS Code, Win
 
 ## Tools Reference
 
-Every tool validates its input with [zod](https://zod.dev) and returns a clear error message (rather than crashing) when an RPC call or data source is unavailable. Fifteen tools are **free**; the two premium computed tools settle via [x402 micropayments on Flare](#x402-payments-premium-tools) when the operator enables it (and are free otherwise).
+Every tool validates its input with [zod](https://zod.dev) and returns a clear error message (rather than crashing) when an RPC call or data source is unavailable. Seventeen tools are **free**; the two premium computed tools settle via [x402 micropayments on Flare](#x402-payments-premium-tools) when the operator enables it (and are free otherwise).
 
 | Tool | Networks | Tier | Description |
 | --- | --- | --- | --- |
 | `get_flr_balance` | mainnet, coston2, songbird, coston | Free | Native + wrapped (WNat) balance for an address |
+| `get_flr_stake_info` | mainnet, coston2, songbird, coston | Free | Portfolio: FLR+WFLR, vote power, delegation, claimable rewards (by source), FlareDrops |
 | `get_ftso_feed` | mainnet, coston2, songbird, coston | Free | Latest price for one FTSO feed (`"FLR/USD"` or `bytes21` id) |
 | `get_ftso_feeds_all` | mainnet, coston2, songbird, coston | Free | Latest price for every bundled feed |
 | `get_ftso_providers` | mainnet, coston2 † | Free | Active FTSO data providers |
@@ -101,6 +104,7 @@ Every tool validates its input with [zod](https://zod.dev) and returns a clear e
 | `fdc_get_attestation_proof` | mainnet, coston2, songbird, coston | Free | Retrieve a proof from the DA layer and verify it locally against the on-chain Relay root |
 | `fassets_agent_status` | mainnet, coston2, songbird | Free | Per-agent collateral ratios, minting capacity, liquidation status (riskiest first) |
 | `fassets_system_state` | mainnet, coston2, songbird | Free | Total minted, lot size, minting cap/pause, aggregate collateral, redemption queue |
+| `fassets_agent_details` | mainnet, coston2, songbird | Free | Agent name, description, logo, terms-of-use, whitelist status (AgentOwnerRegistry) |
 | `songbird_fcc_registry` | songbird (default), all | Free | Scan the live contract registry for FCC (PMW/TEE) deployments |
 | `fdc_verify_settlement` | mainnet, coston2, songbird, coston | Free | Prove an x402 settlement via enshrined FDC (EVMTransaction attestation) and bind it to the payment claim |
 | `fassets_liquidation_scanner` | mainnet, coston2, songbird | **Premium (x402)** § | FAssets agents × live FTSO prices: per-agent liquidation price and distance to it |
@@ -174,7 +178,7 @@ FLARIO_HTTP_HOST=0.0.0.0 npx flario --http 8402
 
 | Endpoint | What it serves |
 | --- | --- |
-| `POST /mcp` | Full MCP server over Streamable HTTP (stateless) — all 17 tools, x402 in-band |
+| `POST /mcp` | Full MCP server over Streamable HTTP (stateless) — all 19 tools, x402 in-band |
 | `GET /api/premium/liquidation-scanner?asset=FXRP&network=mainnet` | Spec-style **HTTP x402**: `402` + `accepts[]` → retry with `X-Payment` header → result + `X-Payment-Response` (settlement tx) |
 | `POST /api/premium/proof-bundle` | Same x402 flow; body `{"requests":[{"voting_round_id":N,"abi_encoded_request":"0x…"}],"network":"…"}` |
 | `GET /` | Discovery: endpoints, x402 config, pricing |
