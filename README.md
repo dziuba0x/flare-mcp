@@ -15,6 +15,43 @@ Beyond reads, Flario gives agents a **wallet**: premium tools are payable per ca
 
 ---
 
+## Why Flario
+
+- **Depth on Flare's enshrined protocols, by design.** FTSO, FDC and FAssets are built into the chain — so are Flario's 19 tools. Generic multi-chain MCP servers can't reach this; the depth isn't portable to other chains.
+- **Proof-carrying, not "trust us."** Prices and cross-chain facts come with a Merkle proof that Flario verifies **locally** against the on-chain root — so an agent, or a smart contract, can rely on the answer without trusting any API.
+- **Agents can pay — and get a receipt.** Premium tools settle per call via [x402](https://www.x402.org/) on Flare, and every payment returns a portable receipt **provable by Flare's enshrined FDC**, not the facilitator's word. No other chain in the x402 ecosystem can do that.
+- **Self-hostable, zero custody.** Works against public RPCs out of the box, needs no account or key for reads, and **never holds or forwards funds**.
+
+---
+
+## Examples
+
+Once Flario is added to your MCP client (see [Quickstart](#quick-start--claude-desktop)), just ask in natural language:
+
+| Ask your agent… | Flario runs |
+| --- | --- |
+| *"What's the FLR/USD price on Flare, with a proof I can verify?"* | `get_ftso_anchor_feed` |
+| *"Which FXRP agents are closest to liquidation right now?"* | `fassets_liquidation_scanner` |
+| *"Show the FLR portfolio for `0x…` — balance, delegation, claimable rewards."* | `get_flr_stake_info` |
+| *"Who runs FXRP agent `0x…`?"* | `fassets_agent_details` |
+| *"Prove this settlement really happened, via Flare's FDC."* | `fdc_verify_settlement` |
+
+A proof-carrying price answer looks like this — the value **and** a proof the agent can verify itself (trimmed):
+
+```json
+{
+  "verified": true,
+  "verification": "Local: keccak256(abi.encode(feed body)) folded through the Merkle proof equals Relay.merkleRoots(100, round) read on-chain.",
+  "name": "FLR/USD",
+  "price": 0.006786,
+  "voting_round_id": 1402671,
+  "merkle_root": "0x…",
+  "proof": ["0x…", "0x…"]
+}
+```
+
+---
+
 ## Features
 
 - **`get_flr_balance`** — Native FLR and wrapped WFLR (WNat) balance for any EVM address.
@@ -81,6 +118,18 @@ Edit `~/.cursor/mcp.json` (global) or `.cursor/mcp.json` (per-project) and add:
 ```
 
 The same block works in any MCP client that supports stdio servers (VS Code, Windsurf, Zed, etc.). The `env` section is optional — the public Flare RPC endpoints are used by default.
+
+### Verify it works (no client, ~10 s)
+
+```bash
+# List all 19 tools straight from the published package:
+npx -y @modelcontextprotocol/inspector --cli npx -y flario --method tools/list
+
+# Or call one — a proof-carrying FLR/USD price on mainnet:
+npx -y @modelcontextprotocol/inspector --cli npx -y flario \
+  --method tools/call --tool-name get_ftso_anchor_feed \
+  --tool-arg feed_id=FLR/USD --tool-arg network=mainnet
+```
 
 ---
 
@@ -279,5 +328,5 @@ npx @modelcontextprotocol/inspector --cli node dist/index.js \
 
 ## Built by
 
-**[Dziuba Technology](https://github.com/DziubaTechnology)** — Alan Dziuba.
+**[Dziuba Technology](https://github.com/dziuba0x)** — Alan Dziuba.
 Built on [Flare Network](https://dev.flare.network). Contributions and issues welcome.

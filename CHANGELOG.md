@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.2.1 — 2026-07-21 — README polish (P3, docs only)
+
+- Marketing-oriented README: added **Why Flario** (differentiators), **Examples**
+  (natural-language agent asks → tools, with a real proof-carrying price output),
+  and a no-client **Verify it works** quickstart. No code changes; ships the
+  polished README to the npm package page too.
+
 ## 1.2.0 — 2026-07-21 — Flare portfolio + agent identity (edge path P2)
 
 - **`get_flr_stake_info`** (new): one-call "Flare portfolio" for an address —
